@@ -1,0 +1,331 @@
+.section {
+  background-color: var(--color-cream);
+  position: relative;
+  overflow: hidden;
+  padding: 110px 0 90px;
+  border-top: 1px solid var(--color-gold-border);
+}
+
+.section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(197, 161, 90, 0.25) 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* BACKGROUND SVGS */
+.topRoute {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120%;
+  max-width: 1600px;
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.12;
+  color: var(--color-gold);
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 48px;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-primary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-burgundy);
+  border: 1px solid var(--color-gold);
+  background: var(--color-gold-light);
+  border-radius: 999px;
+  padding: 6px 18px;
+  margin-bottom: 14px;
+}
+
+.heading {
+  font-size: clamp(32px, 4vw, 48px);
+  font-family: var(--font-heading);
+  color: var(--color-burgundy);
+  margin: 0 auto;
+  max-width: 680px;
+  line-height: 1.18;
+  font-weight: 700;
+}
+
+/* DIVIDERS */
+.dashedDivider {
+  width: 90%;
+  margin: 0 auto;
+  border-top: 1.5px dashed var(--color-gold-border);
+  position: relative;
+  z-index: 2;
+}
+
+/* STATS */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin: 44px auto;
+  max-width: 1040px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statValue {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-burgundy);
+  margin-bottom: 6px;
+  font-family: var(--font-heading);
+  letter-spacing: 0.02em;
+}
+
+.statLabel {
+  font-family: var(--font-primary);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted-text);
+}
+
+/* FEATURES DESKTOP */
+.featuresRowDesktop {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 56px;
+  position: relative;
+  z-index: 2;
+}
+
+.featureCard {
+  background: var(--color-white);
+  border: 1px solid var(--color-gold-border);
+  border-radius: 20px;
+  padding: 36px 30px;
+  box-shadow: 0 10px 30px rgba(40, 35, 35, 0.04);
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.featureCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(100, 27, 48, 0.12);
+  border-color: var(--color-gold);
+}
+
+.iconContainer {
+  width: 50px;
+  height: 50px;
+  background: var(--color-gold-light);
+  border: 1px solid var(--color-gold-border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(100, 27, 48, 0.04);
+  color: var(--color-burgundy);
+}
+
+.iconContainer svg {
+  width: 24px;
+  height: 24px;
+}
+
+.featureCard h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-burgundy);
+  margin-bottom: 12px;
+  font-family: var(--font-heading);
+  letter-spacing: 0.04em;
+}
+
+.featureCard p {
+  font-family: var(--font-primary);
+  font-size: 14px;
+  color: var(--color-charcoal);
+  line-height: 1.65;
+}
+
+/* FEATURE CARDS MOBILE CAROUSEL */
+.carouselContainer {
+  width: 100%;
+  margin-top: 36px;
+  position: relative;
+  z-index: 2;
+}
+
+.carouselViewport {
+  overflow: hidden;
+  width: 100%;
+  touch-action: pan-y pinch-zoom;
+}
+
+.carouselTrack {
+  display: flex;
+  width: 100%;
+  will-change: transform;
+}
+
+.carouselSlide {
+  flex: 0 0 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.featureCardMobile {
+  background: var(--color-white);
+  border: 1px solid var(--color-gold-border);
+  border-radius: 18px;
+  padding: 30px 24px;
+  box-shadow: 0 10px 30px rgba(40, 35, 35, 0.04);
+  width: 100%;
+  text-align: left;
+}
+
+.featureCardMobile .iconContainer {
+  width: 46px;
+  height: 46px;
+  background: var(--color-gold-light);
+  border: 1px solid var(--color-gold-border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: var(--color-burgundy);
+}
+
+.featureCardMobile .iconContainer svg {
+  width: 22px;
+  height: 22px;
+}
+
+.featureCardMobile h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-burgundy);
+  margin-bottom: 10px;
+  font-family: var(--font-heading);
+}
+
+.featureCardMobile p {
+  font-family: var(--font-primary);
+  font-size: 13.5px;
+  color: var(--color-charcoal);
+  line-height: 1.6;
+}
+
+.carouselControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 28px;
+}
+
+.arrowBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--color-gold-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-burgundy);
+  transition: all 0.25s ease;
+}
+
+.arrowBtn:hover {
+  background: var(--color-burgundy);
+  color: #FFFFFF;
+  border-color: var(--color-burgundy);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(197, 161, 90, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.dotActive {
+  width: 20px;
+  background: var(--color-burgundy);
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 60px 0 50px;
+  }
+  
+  .header {
+    margin-bottom: 28px;
+  }
+  
+  .heading {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+  
+  .statsRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 14px;
+    margin: 28px auto;
+  }
+  
+  .statValue {
+    font-size: 24px;
+  }
+  
+  .statLabel {
+    font-size: 9.5px;
+  }
+  
+  .featuresRowDesktop {
+    display: none;
+  }
+}

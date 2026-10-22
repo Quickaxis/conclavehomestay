@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="320" height="80">
+  <!-- 
+    THE CONCLAVE — OFFICIAL LOGO PLACEHOLDER
+    Replace this file or update public/images/conclave-logo.png with the official logo provided by project owner.
+  -->
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4B26F"/>
+      <stop offset="50%" stop-color="#C5A15A"/>
+      <stop offset="100%" stop-color="#9E7D3B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Monogram Mark -->
+  <g transform="translate(10, 12)">
+    <rect x="0" y="0" width="56" height="56" rx="8" fill="#641B30" stroke="url(#goldGrad)" stroke-width="1.5" />
+    <path d="M 16 28 C 16 21 21 16 28 16 C 33 16 37 19 39 23" fill="none" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" />
+    <path d="M 40 28 C 40 35 35 40 28 40 C 23 40 19 37 17 33" fill="none" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" />
+    <circle cx="28" cy="28" r="3" fill="url(#goldGrad)" />
+  </g>
+
+  <!-- Brand Typography -->
+  <g transform="translate(78, 22)">
+    <text x="0" y="22" font-family="'Cinzel', 'Playfair Display', Georgia, serif" font-size="21" font-weight="700" letter-spacing="3" fill="#641B30">THE CONCLAVE</text>
+    <text x="1" y="40" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.8" fill="#C5A15A">LODGING AND HOMESTAY</text>
+  </g>
+</svg>

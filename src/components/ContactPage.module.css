@@ -1,0 +1,307 @@
+.pageWrapper {
+  padding-top: 130px;
+  padding-bottom: 100px;
+  background-color: var(--color-cream);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.topContent {
+  margin-bottom: 50px;
+}
+
+.brandBadgeWrapper {
+  margin-bottom: 20px;
+}
+
+.pageLogo {
+  height: 72px;
+  width: auto;
+  aspect-ratio: 896 / 1200;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid rgba(197, 161, 90, 0.4);
+  box-shadow: 0 4px 16px rgba(100, 27, 48, 0.08);
+  display: inline-block;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-primary);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-burgundy);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-gold);
+  background: var(--color-gold-light);
+  border-radius: 999px;
+  padding: 6px 18px;
+  margin-bottom: 14px;
+}
+
+.heading {
+  font-family: var(--font-heading);
+  font-size: 46px;
+  font-weight: 700;
+  color: var(--color-burgundy);
+  line-height: 1.15;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+
+.supportingText {
+  font-family: var(--font-primary);
+  font-size: 16px;
+  color: var(--color-charcoal);
+  max-width: 620px;
+  line-height: 1.6;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 46% 1fr;
+  gap: 40px;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.contactCard, .locationCard {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-white);
+  padding: 24px 28px;
+  border-radius: 20px;
+  text-decoration: none;
+  border: 1px solid var(--color-gold-border);
+  box-shadow: 0 8px 24px rgba(40, 35, 35, 0.04);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.contactCard:hover, .locationCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(100, 27, 48, 0.1);
+  border-color: var(--color-gold);
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: var(--color-gold-light);
+  border-radius: 12px;
+  color: var(--color-burgundy);
+  margin-right: 20px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-gold-border);
+}
+
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardEyebrow {
+  font-family: var(--font-primary);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-gold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.cardMain {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-burgundy);
+  margin-bottom: 4px;
+}
+
+.cardSub {
+  font-family: var(--font-primary);
+  font-size: 13px;
+  color: var(--color-muted-text);
+  line-height: 1.45;
+}
+
+.rightCol {
+  width: 100%;
+}
+
+.formCard {
+  background-color: var(--color-white);
+  padding: 44px 38px;
+  border-radius: 24px;
+  border: 1px solid var(--color-gold-border);
+  box-shadow: 0 12px 36px rgba(40, 35, 35, 0.05);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.formEyebrow {
+  display: inline-block;
+  font-family: var(--font-primary);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-gold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inputGroup label {
+  font-family: var(--font-primary);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--color-charcoal);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.optional {
+  color: var(--color-muted-text);
+  font-weight: 400;
+  text-transform: none;
+}
+
+.inputGroup input,
+.inputGroup select,
+.inputGroup textarea {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1px solid rgba(197, 161, 90, 0.35);
+  border-radius: 10px;
+  background-color: var(--color-cream);
+  font-family: var(--font-primary);
+  font-size: 14.5px;
+  color: var(--color-charcoal);
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.inputGroup input:focus,
+.inputGroup select:focus,
+.inputGroup textarea:focus {
+  border-color: var(--color-burgundy);
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(100, 27, 48, 0.1);
+}
+
+.submitBtn {
+  background-color: var(--color-burgundy);
+  color: #FFFFFF;
+  border: 1px solid var(--color-burgundy);
+  padding: 16px;
+  border-radius: 999px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 6px;
+  box-shadow: 0 4px 14px rgba(100, 27, 48, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.submitBtn:hover {
+  background-color: var(--color-burgundy-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(100, 27, 48, 0.35);
+}
+
+.formNote {
+  font-family: var(--font-primary);
+  font-size: 12px;
+  color: var(--color-muted-text);
+  text-align: center;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.successCard {
+  text-align: center;
+  padding: 40px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.successIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-gold-light);
+  border: 2px solid var(--color-gold);
+  color: var(--color-burgundy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inputError {
+  border-color: #C0392B !important;
+  background-color: #FFF9F9 !important;
+}
+
+.errorText {
+  color: #C0392B;
+  font-family: var(--font-primary);
+  font-size: 11.5px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+@media (max-width: 992px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageWrapper {
+    padding-top: 100px;
+    padding-bottom: 80px;
+  }
+  
+  .heading {
+    font-size: 34px;
+  }
+
+  .formCard {
+    padding: 30px 20px;
+  }
+}

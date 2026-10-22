@@ -1,0 +1,201 @@
+export const roomsData = [
+  {
+    id: "room-01",
+    name: "Room 01",
+    roomName: "X",
+    category: "X",
+    detail: "ROOM 01",
+    price: "X",
+    indicativePrice: "₹1,500–₹2,500",
+    capacity: "X",
+    bedType: "X",
+    roomSize: "X",
+    airConditioning: "X",
+    bathroom: "X",
+    units: "Room 01",
+    src: "/images/skylinesuite4.webp",
+    alt: "Room 01 at The Conclave in Khanikar, Dibrugarh",
+    aspectRatio: "4/5",
+    description: "Contact us to confirm room details, rates and availability.",
+    amenities: [
+      "Air Conditioning: X",
+      "Attached Bathroom: X",
+      "Bed Type: X",
+      "Room Size: X",
+      "Occupancy: X"
+    ],
+    perfectFor: ["Families", "Business Travellers", "Tourists"],
+    images: [
+      "/images/skylinesuite4.webp",
+      "/images/skylinesuite1.webp",
+      "/images/skylinesuite2.webp",
+      "/images/skylinesuite3.webp",
+      "/images/skylinesuite5.webp"
+    ]
+  },
+  {
+    id: "room-02",
+    name: "Room 02",
+    roomName: "X",
+    category: "X",
+    detail: "ROOM 02",
+    price: "X",
+    indicativePrice: "₹1,500–₹2,500",
+    capacity: "X",
+    bedType: "X",
+    roomSize: "X",
+    airConditioning: "X",
+    bathroom: "X",
+    units: "Room 02",
+    src: "/images/2bhk1.webp",
+    alt: "Room 02 at The Conclave in Khanikar, Dibrugarh",
+    aspectRatio: "4/5",
+    description: "Contact us to confirm room details, rates and availability.",
+    amenities: [
+      "Air Conditioning: X",
+      "Ensuite Bath: X",
+      "Bedding: X",
+      "Lounge Area: X",
+      "Room Size: X"
+    ],
+    perfectFor: ["Families", "Business Travellers", "Extended Stay"],
+    images: [
+      "/images/2bhk1.webp",
+      "/images/2bhk2.webp",
+      "/images/2bhk3.webp",
+      "/images/2bhk4.webp"
+    ]
+  },
+  {
+    id: "room-03",
+    name: "Room 03",
+    roomName: "X",
+    category: "X",
+    detail: "ROOM 03",
+    price: "X",
+    indicativePrice: "₹1,500–₹2,500",
+    capacity: "X",
+    bedType: "X",
+    roomSize: "X",
+    airConditioning: "X",
+    bathroom: "X",
+    units: "Room 03",
+    src: "/images/nirbili1.webp",
+    alt: "Room 03 at The Conclave in Khanikar, Dibrugarh",
+    aspectRatio: "4/5",
+    description: "Contact us to confirm room details, rates and availability.",
+    amenities: [
+      "Air Conditioning: X",
+      "Bathroom: X",
+      "Bed Type: X",
+      "Balcony / View: X",
+      "Occupancy: X"
+    ],
+    perfectFor: ["Couples", "Travellers", "Families"],
+    images: [
+      "/images/nirbili1.webp",
+      "/images/nirbili2.webp",
+      "/images/nirbili3.webp",
+      "/images/nirbili4.webp"
+    ]
+  },
+  {
+    id: "room-04",
+    name: "Room 04",
+    roomName: "X",
+    category: "X",
+    detail: "ROOM 04",
+    price: "X",
+    indicativePrice: "₹1,500–₹2,500",
+    capacity: "X",
+    bedType: "X",
+    roomSize: "X",
+    airConditioning: "X",
+    bathroom: "X",
+    units: "Room 04",
+    src: "/images/1rk.webp",
+    alt: "Room 04 at The Conclave in Khanikar, Dibrugarh",
+    aspectRatio: "4/5",
+    description: "Contact us to confirm room details, rates and availability.",
+    amenities: [
+      "Air Conditioning: X",
+      "Attached Bathroom: X",
+      "Bed Configuration: X",
+      "Work Desk: X",
+      "Room Size: X"
+    ],
+    perfectFor: ["Solo Travellers", "Business Travellers", "Short Stay"],
+    images: [
+      "/images/1rk.webp",
+      "/images/1rk2.webp",
+      "/images/1rk3.webp",
+      "/images/1rk4.webp"
+    ]
+  },
+  {
+    id: "room-05",
+    name: "Room 05",
+    roomName: "X",
+    category: "X",
+    detail: "ROOM 05",
+    price: "X",
+    indicativePrice: "₹1,500–₹2,500",
+    capacity: "X",
+    bedType: "X",
+    roomSize: "X",
+    airConditioning: "X",
+    bathroom: "X",
+    units: "Room 05",
+    src: "/images/skylinesuite5.webp",
+    alt: "Room 05 at The Conclave in Khanikar, Dibrugarh",
+    aspectRatio: "4/5",
+    description: "Contact us to confirm room details, rates and availability.",
+    amenities: [
+      "Air Conditioning: X",
+      "Private Bath: X",
+      "Bedding: X",
+      "Living Space: X",
+      "Occupancy: X"
+    ],
+    perfectFor: ["Families", "Business Travellers", "Tourists"],
+    images: [
+      "/images/skylinesuite5.webp",
+      "/images/skylinesuite6.webp",
+      "/images/2bhk5.webp",
+      "/images/2bhk6.webp"
+    ]
+  },
+  {
+    id: "room-06",
+    name: "Room 06",
+    roomName: "X",
+    category: "X",
+    detail: "ROOM 06",
+    price: "X",
+    indicativePrice: "₹1,500–₹2,500",
+    capacity: "X",
+    bedType: "X",
+    roomSize: "X",
+    airConditioning: "X",
+    bathroom: "X",
+    units: "Room 06",
+    src: "/images/nirbili5.webp",
+    alt: "Room 06 at The Conclave in Khanikar, Dibrugarh",
+    aspectRatio: "4/5",
+    description: "Contact us to confirm room details, rates and availability.",
+    amenities: [
+      "Air Conditioning: X",
+      "Attached Bathroom: X",
+      "Multi-guest Layout: X",
+      "Bed Type: X",
+      "Room Size: X"
+    ],
+    perfectFor: ["Families", "Groups", "Tourists"],
+    images: [
+      "/images/nirbili5.webp",
+      "/images/nirbili6.webp",
+      "/images/2bhk7.webp",
+      "/images/1rk5.webp"
+    ]
+  }
+];

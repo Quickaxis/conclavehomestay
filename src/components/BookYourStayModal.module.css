@@ -1,0 +1,180 @@
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(100, 27, 48, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+  position: relative;
+  background: var(--color-white);
+  width: 440px;
+  max-width: calc(100% - 32px);
+  padding: 48px 32px;
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(100, 27, 48, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  box-sizing: border-box;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-cream);
+  border: 1px solid rgba(40, 35, 35, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-burgundy);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+  background: #EAE3D1;
+  transform: scale(1.05);
+}
+
+.modalLogo {
+  height: 60px;
+  width: auto;
+  aspect-ratio: 896 / 1200;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid rgba(197, 161, 90, 0.4);
+  box-shadow: 0 4px 14px rgba(100, 27, 48, 0.1);
+  margin-bottom: 6px;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-burgundy);
+  margin-top: 4px;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-family: var(--font-primary);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-gold);
+  margin-bottom: 6px;
+}
+
+.scheduleText {
+  font-family: var(--font-primary);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-bottom: 24px;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.bookNowBtn, .callBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 16px;
+  border-radius: 100px;
+  font-family: var(--font-primary);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.bookNowBtn {
+  background: var(--color-burgundy);
+  color: var(--color-white);
+  border: none;
+  box-shadow: 0 4px 14px rgba(100, 27, 48, 0.25);
+}
+
+.bookNowBtn:hover {
+  background: var(--color-burgundy-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(100, 27, 48, 0.35);
+}
+
+.callBtn {
+  background: var(--color-white);
+  color: var(--color-burgundy);
+  border: 1.5px solid rgba(100, 27, 48, 0.2);
+}
+
+.callBtn:hover {
+  background: var(--color-cream);
+  border-color: var(--color-gold);
+}
+
+.alternateNumberWrapper {
+  margin-top: 6px;
+}
+
+.alternateNumber {
+  font-family: var(--font-primary);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 36px 20px;
+    border-radius: 20px;
+  }
+  
+  .title {
+    font-size: 22px;
+  }
+  
+  .bookNowBtn, .callBtn {
+    padding: 14px;
+    font-size: 13px;
+  }
+}
