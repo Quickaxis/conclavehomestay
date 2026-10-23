@@ -5,10 +5,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { roomsData } from '../data/rooms';
 import ImageSlot from './ImageSlot';
 import styles from './RoomSection.module.css';
+import { useBooking } from '../context/BookingContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const RoomCard = ({ room }) => {
+const RoomCard = ({ room, verifiedRoom }) => {
+  const hasLiveRate = verifiedRoom && typeof verifiedRoom.nightlyRate === 'number' && verifiedRoom.nightlyRate > 0;
+
   return (
     <a 
       href={`/rooms/${room.id}`} 
@@ -30,12 +33,20 @@ const RoomCard = ({ room }) => {
       <div className={styles.cardContent}>
         <div className={styles.cardHeader}>
           {room.detail && <span className={styles.detailPill}>{room.detail}</span>}
-          <span className={styles.pricePill}>RATE: {room.price} (INDICATIVE: {room.indicativePrice || '₹1,500–₹2,500'})</span>
+          {hasLiveRate ? (
+            <span className={styles.pricePill} style={{ borderColor: 'var(--color-gold)', color: 'var(--color-burgundy)', fontWeight: '700' }}>
+              APPROVED RATE: ₹{verifiedRoom.nightlyRate.toLocaleString()} / NIGHT
+            </span>
+          ) : (
+            <span className={styles.pricePill}>
+              RATE: ON ENQUIRY • ROOM SETUP IN PROGRESS
+            </span>
+          )}
         </div>
         <div className={styles.cardFooter}>
           <div className={styles.cardMeta}>
             <h3 className={styles.roomName}>{room.name}</h3>
-            <p className={styles.roomDesc}>{room.description}</p>
+            <p className={styles.roomDesc}>{verifiedRoom?.description || room.description}</p>
           </div>
           <div className={styles.arrowBtn} aria-label={`View ${room.name}`}>
             <ArrowRight size={20} />
@@ -51,6 +62,20 @@ const RoomSection = () => {
   const eyebrowRef = useRef(null);
   const headingLinesRef = useRef([]);
   const ctaRef = useRef(null);
+  const { verifiedHmsRooms } = useBooking();
+
+  // Create room map for fast lookup
+  const verifiedMap = {};
+  if (Array.isArray(verifiedHmsRooms)) {
+    verifiedHmsRooms.forEach(vr => {
+      verifiedMap[vr.id] = vr;
+      if (vr.roomNumber) {
+        const num = vr.roomNumber.trim().replace(/^0+/, '');
+        verifiedMap[`room-${num.padStart(2, '0')}`] = vr;
+        verifiedMap[`room-${num}`] = vr;
+      }
+    });
+  }
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -113,13 +138,21 @@ const RoomSection = () => {
           {/* Set 1 */}
           <div className={styles.carouselSet}>
             {roomsData.map((room) => (
-              <RoomCard key={`set1-${room.id}`} room={room} />
+              <RoomCard 
+                key={`set1-${room.id}`} 
+                room={room} 
+                verifiedRoom={verifiedMap[room.id]}
+              />
             ))}
           </div>
           {/* Set 2 (Duplicate for seamless loop) */}
           <div className={`${styles.carouselSet} ${styles.duplicateSet}`}>
             {roomsData.map((room) => (
-              <RoomCard key={`set2-${room.id}`} room={room} />
+              <RoomCard 
+                key={`set2-${room.id}`} 
+                room={room} 
+                verifiedRoom={verifiedMap[room.id]}
+              />
             ))}
           </div>
         </div>

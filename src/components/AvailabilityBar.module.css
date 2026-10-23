@@ -1,0 +1,193 @@
+.barWrapper {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto 36px;
+  position: relative;
+  z-index: 10;
+}
+
+.barContainer {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border: 1px solid rgba(197, 168, 128, 0.4);
+  box-shadow: 0 10px 30px rgba(91, 27, 41, 0.08);
+  border-radius: 999px;
+  padding: 8px 12px 8px 24px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.barContainer:focus-within {
+  border-color: var(--color-gold, #C5A880);
+  box-shadow: 0 12px 36px rgba(91, 27, 41, 0.12);
+}
+
+.inputSegment {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 4px 12px;
+  min-width: 0;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-burgundy, #5B1B29);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.labelIcon {
+  color: var(--color-gold, #C5A880);
+}
+
+.dateInput,
+.selectInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  padding: 2px 0;
+  width: 100%;
+  cursor: pointer;
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.dateInput::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(197, 168, 128, 0.3);
+  margin: 0 4px;
+}
+
+.btnSegment {
+  padding-left: 8px;
+}
+
+.submitBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--color-burgundy, #5B1B29);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #46141F;
+  transform: translateY(-1px);
+}
+
+.submitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.errorAlert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFF5F5;
+  border: 1px solid #FED7D7;
+  color: #C53030;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.statusFooter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.badgeSuccess {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #2F855A;
+  background: rgba(72, 187, 120, 0.12);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.badgePending {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #975A16;
+  background: rgba(236, 201, 75, 0.16);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* Responsive Styles */
+@media (max-width: 820px) {
+  .barContainer {
+    flex-direction: column;
+    border-radius: 18px;
+    padding: 16px;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .inputSegment {
+    border-bottom: 1px solid rgba(197, 168, 128, 0.2);
+    padding: 8px 0;
+  }
+
+  .btnSegment {
+    padding-left: 0;
+    margin-top: 4px;
+  }
+
+  .submitBtn {
+    width: 100%;
+    padding: 14px;
+  }
+}

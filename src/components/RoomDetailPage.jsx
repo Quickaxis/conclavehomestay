@@ -12,7 +12,10 @@ import {
   Sparkles, 
   Clock, 
   ShieldCheck, 
-  Droplet 
+  Droplet,
+  CheckCircle2,
+  XCircle,
+  AlertCircle
 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -22,7 +25,7 @@ import ImageSlot from './ImageSlot';
 import SEO from './SEO';
 import NotFoundPage from './NotFoundPage';
 import styles from './RoomDetailPage.module.css';
-import { useBookingModal } from '../context/BookingContext';
+import { useBooking } from '../context/BookingContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -48,7 +51,13 @@ const RoomDetailPage = ({ roomId }) => {
 
   const pageRef = useRef(null);
   const infoRef = useRef(null);
-  const { openModal } = useBookingModal();
+  const { 
+    openModal, 
+    availabilityData, 
+    checkIn, 
+    checkOut, 
+    guests 
+  } = useBooking();
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -71,11 +80,26 @@ const RoomDetailPage = ({ roomId }) => {
 
   if (!room) return <NotFoundPage />;
 
+  // Match room in live availability data
+  let liveAvail = null;
+  if (availabilityData && Array.isArray(availabilityData.rooms)) {
+    liveAvail = availabilityData.rooms.find(r => {
+      if (r.id === room.id) return true;
+      if (r.roomNumber) {
+        const num = r.roomNumber.trim().replace(/^0+/, '');
+        return room.id === `room-${num.padStart(2, '0')}` || room.id === `room-${num}`;
+      }
+      return false;
+    });
+  }
+
+  const isAvailable = liveAvail ? liveAvail.isAvailable : null;
+
   return (
     <div className={styles.pageWrapper} ref={pageRef}>
       <SEO 
         title={`${room.name} | The Conclave Dibrugarh`}
-        description={`Explore ${room.name} at The Conclave in Khanikar, Dibrugarh. ${room.description} Indicative price range: ₹1,500–₹2,500 per room/night.`}
+        description={`Explore ${room.name} at The Conclave in Khanikar, Dibrugarh. ${room.description} Real-time availability and pay-at-property booking.`}
         path={`/rooms/${room.id}`}
         ogImage={room.images[0]}
       />
@@ -108,9 +132,13 @@ const RoomDetailPage = ({ roomId }) => {
           {/* Right: Info */}
           <div className={styles.contentCol} ref={infoRef}>
             <div>
-              <div className={styles.eyebrow}>ROOM TYPE: {room.category} • THE CONCLAVE</div>
+              <div className={styles.eyebrow}>
+                ROOM: {room.name} • THE CONCLAVE
+              </div>
               <h1 className={styles.heading}>{room.name}</h1>
-              <p className={styles.description}>{room.description}</p>
+              <p className={styles.description}>
+                {liveAvail?.description || room.description}
+              </p>
             </div>
 
             <div>
@@ -125,20 +153,76 @@ const RoomDetailPage = ({ roomId }) => {
               </div>
             </div>
 
+            {/* Live Booking & Pricing Panel */}
             <div>
               <div className={styles.bookingPanel}>
                 <div>
                   <div className={styles.priceLabel}>ROOM RATE</div>
-                  <div className={styles.priceValue}>Rate: {room.price}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--color-gold)', marginTop: '4px', fontWeight: '600' }}>
-                    Indicative range: ₹1,500–₹2,500 / night
-                  </div>
+                  {liveAvail && liveAvail.nightlyRate ? (
+                    <div>
+                      <div className={styles.priceValue}>
+                        ₹{liveAvail.nightlyRate.toLocaleString()} <span style={{ fontSize: '13px', fontWeight: 500, color: 'inherit' }}>/ night</span>
+                      </div>
+                      {liveAvail.totalPrice && (
+                        <div style={{ fontSize: '12px', color: 'var(--color-gold)', marginTop: '4px', fontWeight: '600' }}>
+                          Total for {availabilityData.nights} night{availabilityData.nights > 1 ? 's' : ''}: ₹{liveAvail.totalPrice.toLocaleString()} (Pay at Property)
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <div className={styles.priceValue}>Rate on Enquiry</div>
+                      <div style={{ fontSize: '12px', color: 'var(--color-gold)', marginTop: '4px', fontWeight: '600' }}>
+                        Approved nightly rates will be published once physical room configuration is complete.
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <button className={styles.bookBtn} onClick={openModal}>
-                  ENQUIRE ABOUT YOUR STAY <ArrowRight size={16} />
-                </button>
+
+                {/* Status-Aware Action Button */}
+                {liveAvail && !isAvailable ? (
+                  <button 
+                    disabled 
+                    className={styles.bookBtn}
+                    style={{ background: '#CBD5E0', borderColor: '#CBD5E0', cursor: 'not-allowed', color: '#718096' }}
+                  >
+                    <XCircle size={16} /> UNAVAILABLE FOR DATES
+                  </button>
+                ) : liveAvail && isAvailable ? (
+                  <button 
+                    className={styles.bookBtn} 
+                    onClick={() => openModal({ roomId: room.id, mode: 'book' })}
+                  >
+                    RESERVE (PAY AT PROPERTY) <ArrowRight size={16} />
+                  </button>
+                ) : (
+                  <button 
+                    className={styles.bookBtn} 
+                    onClick={() => openModal({ roomId: room.id, mode: 'enquiry' })}
+                  >
+                    ENQUIRE ABOUT STAY <ArrowRight size={16} />
+                  </button>
+                )}
               </div>
-              <div className={styles.subNote}>Contact us to confirm room details, rates and availability.</div>
+
+              {/* Status Note */}
+              <div className={styles.subNote}>
+                {liveAvail ? (
+                  isAvailable ? (
+                    <span style={{ color: '#2F855A', fontWeight: 600 }}>
+                      <CheckCircle2 size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '4px' }} />
+                      Available for {checkIn} &rarr; {checkOut} ({guests} guest{guests > 1 ? 's' : ''})
+                    </span>
+                  ) : (
+                    <span style={{ color: '#C53030', fontWeight: 600 }}>
+                      <AlertCircle size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '4px' }} />
+                      {liveAvail.unavailabilityReason || 'Unavailable for selected dates'}
+                    </span>
+                  )
+                ) : (
+                  <span>Selected dates: {checkIn} to {checkOut}. Pay upon arrival directly at property.</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -164,11 +248,11 @@ const RoomDetailPage = ({ roomId }) => {
                 </div>
                 <div className={styles.exploreInfo}>
                   <h4>{otherRoom.name}</h4>
-                  <p>Type: {otherRoom.category} • Capacity: {otherRoom.capacity}</p>
+                  <p>The Conclave • Khanikar, Dibrugarh</p>
                 </div>
                 <div className={styles.exploreAction}>
-                  <div className={styles.price}>Rate: {otherRoom.price}</div>
-                  <div className={styles.viewBtn}>VIEW DETAILS &rarr;</div>
+                  <div className={styles.price}>View Room</div>
+                  <div className={styles.viewBtn}>DETAILS &rarr;</div>
                 </div>
               </a>
             ))}

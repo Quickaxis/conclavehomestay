@@ -23,9 +23,6 @@ const ScallopEdge = () => (
 );
 
 const DestinationCard = ({ place }) => {
-  const message = `Hi, I’m interested in exploring ${place.name} while staying at The Conclave Homestay. Please share local travel tips.`;
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-
   return (
     <div className={styles.card}>
       <div className={styles.imageContainer}>
@@ -47,12 +44,10 @@ const DestinationCard = ({ place }) => {
         
         <div className={styles.cardFooter}>
           <a 
-            href={whatsappUrl} 
-            target="_blank" 
-            rel="noopener noreferrer" 
+            href="/contact" 
             className={`pill-button pill-button-navy ${styles.exploreBtn}`}
           >
-            EXPLORE <ArrowUpRight size={16} />
+            ENQUIRE ABOUT VISIT <ArrowUpRight size={16} />
           </a>
         </div>
       </div>

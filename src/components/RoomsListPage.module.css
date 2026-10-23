@@ -171,6 +171,43 @@
   border: 1px solid rgba(197, 161, 90, 0.3);
 }
 
+.availBadgeAvailable {
+  background: rgba(72, 187, 120, 0.15);
+  color: #22543D;
+  border-color: rgba(72, 187, 120, 0.5);
+  font-weight: 700;
+}
+
+.availBadgeUnavailable {
+  background: rgba(229, 62, 62, 0.12);
+  color: #742A2A;
+  border-color: rgba(229, 62, 62, 0.4);
+  font-weight: 700;
+}
+
+.availBadgePending {
+  background: rgba(236, 201, 75, 0.18);
+  color: #744210;
+  border-color: rgba(236, 201, 75, 0.5);
+  font-weight: 600;
+}
+
+.totalPriceText {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-gold);
+  margin-top: 4px;
+}
+
+.disabledBtn {
+  background: #E2E8F0 !important;
+  color: #A0AEC0 !important;
+  border-color: #CBD5E0 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
 .roomName {
   font-family: var(--font-heading);
   font-size: 36px;

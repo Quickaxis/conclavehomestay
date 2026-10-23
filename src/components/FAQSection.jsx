@@ -62,8 +62,6 @@ const FAQSection = () => {
   const [openId, setOpenId] = useState(null);
   const { openModal } = useBookingModal();
 
-  const defaultWhatsappMsg = encodeURIComponent("Hi The Conclave, I have a question about staying at your homestay in Khanikar, Dibrugarh!");
-
   return (
     <section id="faq" className={styles.section}>
       <div className={`section-container ${styles.container}`}>
@@ -79,15 +77,14 @@ const FAQSection = () => {
             <button onClick={openModal} className="pill-button pill-button-navy">
               BOOK YOUR STAY
             </button>
-            <a 
-              href={`https://wa.me/?text=${defaultWhatsappMsg}`} 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <button 
+              type="button"
+              onClick={openModal}
               className={`pill-button ${styles.outlineBtn}`}
-              style={{ textDecoration: 'none', display: 'inline-flex' }}
+              style={{ textDecoration: 'none', display: 'inline-flex', cursor: 'pointer', background: 'transparent' }}
             >
-              <MessageCircle size={18} /> WHATSAPP US
-            </a>
+              <MessageCircle size={18} /> ENQUIRE ABOUT STAY
+            </button>
           </div>
         </div>
         
