@@ -19,33 +19,33 @@ const REVIEWS = [
   {
     id: 'rev-1',
     author: "The Conclave",
-    role: "Khanikar, Dibrugarh",
+    role: "Khanikar Chariali, Dibrugarh",
     rating: 0,
-    date: "Verified Stays",
-    quote: "Guest reviews and personal impressions will be published as travellers stay with us in Khanikar, Dibrugarh. We look forward to welcoming you."
+    date: "Homestay Lodging",
+    quote: "Welcome to The Conclave — Lodging and Homestay, a comfortable place to stay in Khanikar Chariali, Dibrugarh, Assam. With six thoughtfully arranged rooms, a shared dining area, and essential in-room comforts, The Conclave offers a convenient stay for travellers visiting Dibrugarh."
   },
   {
     id: 'rev-2',
-    author: "Thoughtful Stays",
-    role: "Upper Assam Base",
+    author: "Thoughtful Rooms",
+    role: "Six Boutique Rooms",
     rating: 0,
-    date: "Design-Led Lodging",
-    quote: "Travel can be full of plans, movement and new experiences. At The Conclave, we believe hospitality is found in a thoughtfully arranged space and settling in at your own pace."
+    date: "Room Selection",
+    quote: "Choose from our Vista Rooms with highway-facing balconies, the spacious Grand Suite with additional room to relax, or our comfortable standard rooms. Every room includes air conditioning, a television, and an attached bathroom."
   },
   {
     id: 'rev-3',
-    author: "Six Boutique Rooms",
-    role: "Intimate Character",
+    author: "Convenient Location",
+    role: "Highway Access",
     rating: 0,
-    date: "Khanikar Address",
-    quote: "Six guest rooms give The Conclave its own intimate character, creating a considered base for family visits, work trips and journeys across Upper Assam."
+    date: "Khanikar Chariali",
+    quote: "The highway location makes the property convenient for travellers visiting Dibrugarh or journeying through Upper Assam, approximately 10 minutes from Dibrugarh Airport."
   },
   {
     id: 'rev-4',
     author: "Plan Your Visit",
     role: "Direct Reservations",
     rating: 0,
-    date: "Enquiries & Bookings",
+    date: "Enquiries & Stays",
     quote: "Explore our six rooms and get in touch to enquire about your dates. We look forward to helping you plan your stay at The Conclave."
   }
 ];

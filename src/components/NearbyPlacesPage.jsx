@@ -94,7 +94,7 @@ const NearbyPlacesPage = () => {
     <div className={styles.pageContainer} ref={pageRef}>
       <SEO 
         title="Nearby Places & Attractions | The Conclave Dibrugarh"
-        description="Explore nearby attractions, tea estates, and heritage spots around Dibrugarh while staying at The Conclave in Khanikar, Assam."
+        description="Explore nearby attractions, tea estates, and heritage spots around Dibrugarh while staying at The Conclave in Khanikar Chariali, Assam."
         path="/nearby-places"
       />
       <header className={`${styles.header} section-container`}>
@@ -104,7 +104,7 @@ const NearbyPlacesPage = () => {
             NEARBY PLACES
           </h1>
           <p className={`header-anim ${styles.introText}`}>
-            The Conclave is conveniently located in Khanikar, Dibrugarh, making it easy for guests to explore nearby attractions, emerald tea gardens, and heritage sites across Upper Assam.
+            The Conclave is conveniently located in Khanikar Chariali, Dibrugarh, making it easy for travellers to explore nearby attractions, emerald tea gardens, and heritage sites across Upper Assam.
           </p>
         </div>
       </header>

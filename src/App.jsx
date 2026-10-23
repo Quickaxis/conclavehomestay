@@ -91,15 +91,15 @@ function App() {
       {isHomePage && (
         <SEO 
           title="The Conclave | Lodging and Homestay in Dibrugarh, Assam"
-          description="The Conclave is a design-led lodging and homestay in Khanikar, Dibrugarh, Assam. Explore our six rooms and in-house restaurant for a considered stay."
+          description="The Conclave is a lodging and homestay in Khanikar Chariali, Dibrugarh, Assam. Exactly six rooms, shared dining area, and highway convenience approximately 10 minutes from Dibrugarh Airport."
           path="/"
           schema={{
             "@type": "LodgingBusiness",
             "name": "The Conclave",
-            "description": "Boutique lodging and homestay in Khanikar, Dibrugarh, Assam.",
+            "description": "A comfortable lodging and homestay in Khanikar Chariali, Dibrugarh, Assam with six rooms and a shared dining area.",
             "address": {
               "@type": "PostalAddress",
-              "streetAddress": "Khanikar",
+              "streetAddress": "Khanikar Chariali",
               "addressLocality": "Dibrugarh",
               "addressRegion": "Assam",
               "addressCountry": "IN"

@@ -11,7 +11,7 @@ const NotFoundPage = () => {
     <>
       <SEO 
         title="Page Not Found | The Conclave Dibrugarh"
-        description="The page you are looking for does not exist. Return to The Conclave homepage or explore our six rooms in Khanikar, Dibrugarh."
+        description="The page you are looking for does not exist. Return to The Conclave homepage or explore our six rooms in Khanikar Chariali, Dibrugarh."
         path="/404"
       />
       <div style={{ paddingTop: '160px', paddingBottom: '120px', minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }} className="section-container">

@@ -1,46 +1,47 @@
+import { roomsData as importedRooms } from '../data/rooms.js';
+
 /**
  * Central Configuration for The Conclave — Lodging and Homestay
- * Khanikar, Dibrugarh, Assam
+ * Khanikar Chariali, Dibrugarh, Assam, India
  *
  * All property details, room configurations, contact info, and site content
  * are centralized here for easy updates and single-source truth.
- *
- * NOTE: Unknown property information is preserved as "X" as required.
  */
 
 export const PROPERTY_INFO = {
   name: "THE CONCLAVE",
   descriptor: "LODGING AND HOMESTAY",
-  tagline: "Your Stay, Thoughtfully Refined.",
-  supportingText: "Discover a more considered stay in Khanikar, Dibrugarh, where comfort, simplicity and thoughtful hospitality come together.",
+  tagline: "A Comfortable Stay in Khanikar Chariali, Dibrugarh",
+  supportingText: "Welcome to The Conclave — Lodging and Homestay, a comfortable place to stay in Khanikar Chariali, Dibrugarh, Assam. With six thoughtfully arranged rooms, a shared dining area, and essential in-room comforts, The Conclave offers a convenient stay for travellers visiting Dibrugarh.",
   totalRooms: 6,
+  propertyType: "Homestay",
+  commonFacility: "Shared dining area",
   
   location: {
-    addressLine: "Khanikar",
-    locality: "Khanikar",
+    addressLine: "Khanikar Chariali",
+    locality: "Khanikar Chariali",
     city: "Dibrugarh",
     state: "Assam",
     country: "India",
-    fullAddress: "Khanikar, Dibrugarh, Assam, India",
-    // Coordinates and Maps URL are currently unknown and marked as "X"
+    fullAddress: "Khanikar Chariali, Dibrugarh, Assam, India",
+    airportEstimate: "Approximately 10 minutes from Dibrugarh Airport",
     coordinates: "X",
     googleMapsUrl: "X",
     googleMapsEmbed: null
   },
 
   contact: {
-    // Contact number and WhatsApp are currently unknown and stored as "X"
     phone: "X",
     phoneDisplay: "X",
     whatsappNumber: "X",
     email: "X",
-    instagramHandle: "X",
-    instagramUrl: "X"
+    instagramHandle: "@theconclavehomestay",
+    instagramUrl: "https://instagram.com/theconclavehomestay"
   },
 
   seo: {
-    title: "The Conclave | Lodging and Homestay in Dibrugarh",
-    description: "Discover The Conclave, a lodging and homestay in Khanikar, Dibrugarh, Assam. Explore our rooms and enquire about your stay.",
+    title: "The Conclave | Lodging and Homestay in Dibrugarh, Assam",
+    description: "Welcome to The Conclave — Lodging and Homestay in Khanikar Chariali, Dibrugarh, Assam. Exactly six rooms, shared dining area, and highway convenience approximately 10 minutes from Dibrugarh Airport.",
     canonicalUrl: "https://theconclavedibrugarh.com/"
   }
 };
@@ -48,260 +49,75 @@ export const PROPERTY_INFO = {
 export const propertyConfig = PROPERTY_INFO;
 
 /**
- * Six Individually Configurable Room Records
- * Unknown information is explicitly set to "X".
- * Image assets are temporary, replaceable assets representing contemporary Indian homestay accommodations.
+ * Exactly 6 Physical Rooms Data
  */
-export const roomsData = [
-  {
-    id: "room-01",
-    name: "Room 01",
-    category: "X",
-    detail: "ROOM 01",
-    capacity: "X",
-    bedConfig: "X",
-    roomSize: "X",
-    price: "X",
-    availability: "On Enquiry",
-    description: "X",
-    src: "/images/skylinesuite4.webp",
-    alt: "The Conclave — Room 01 preview (replaceable asset)",
-    aspectRatio: "4/5",
-    amenities: [
-      "Air Conditioning",
-      "Attached Bathroom",
-      "High-Speed WiFi",
-      "Daily Housekeeping",
-      "Comfort Bedding",
-      "Dedicated Lighting"
-    ],
-    perfectFor: ["Couples", "Solo Travellers", "Business Travellers", "Families"],
-    images: [
-      "/images/skylinesuite4.webp",
-      "/images/skylinesuite1.webp",
-      "/images/skylinesuite2.webp",
-      "/images/skylinesuite3.webp",
-      "/images/skylinesuite5.webp"
-    ]
-  },
-  {
-    id: "room-02",
-    name: "Room 02",
-    category: "X",
-    detail: "ROOM 02",
-    capacity: "X",
-    bedConfig: "X",
-    roomSize: "X",
-    price: "X",
-    availability: "On Enquiry",
-    description: "X",
-    src: "/images/2bhk1.webp",
-    alt: "The Conclave — Room 02 preview (replaceable asset)",
-    aspectRatio: "4/5",
-    amenities: [
-      "Air Conditioning",
-      "Attached Bathroom",
-      "High-Speed WiFi",
-      "Daily Housekeeping",
-      "Comfort Bedding",
-      "Dedicated Lighting"
-    ],
-    perfectFor: ["Couples", "Business Travellers", "Short Stays"],
-    images: [
-      "/images/2bhk1.webp",
-      "/images/2bhk2.webp",
-      "/images/2bhk3.webp",
-      "/images/2bhk4.webp"
-    ]
-  },
-  {
-    id: "room-03",
-    name: "Room 03",
-    category: "X",
-    detail: "ROOM 03",
-    capacity: "X",
-    bedConfig: "X",
-    roomSize: "X",
-    price: "X",
-    availability: "On Enquiry",
-    description: "X",
-    src: "/images/nirbili1.webp",
-    alt: "The Conclave — Room 03 preview (replaceable asset)",
-    aspectRatio: "4/5",
-    amenities: [
-      "Air Conditioning",
-      "Attached Bathroom",
-      "High-Speed WiFi",
-      "Daily Housekeeping",
-      "Comfort Bedding",
-      "Dedicated Lighting"
-    ],
-    perfectFor: ["Peaceful Retreat", "Couples", "Travellers"],
-    images: [
-      "/images/nirbili1.webp",
-      "/images/nirbili2.webp",
-      "/images/nirbili3.webp",
-      "/images/nirbili4.webp"
-    ]
-  },
-  {
-    id: "room-04",
-    name: "Room 04",
-    category: "X",
-    detail: "ROOM 04",
-    capacity: "X",
-    bedConfig: "X",
-    roomSize: "X",
-    price: "X",
-    availability: "On Enquiry",
-    description: "X",
-    src: "/images/1rk.webp",
-    alt: "The Conclave — Room 04 preview (replaceable asset)",
-    aspectRatio: "4/5",
-    amenities: [
-      "Air Conditioning",
-      "Attached Bathroom",
-      "High-Speed WiFi",
-      "Daily Housekeeping",
-      "Comfort Bedding",
-      "Dedicated Lighting"
-    ],
-    perfectFor: ["Solo Travellers", "Corporate Work", "Couples"],
-    images: [
-      "/images/1rk.webp",
-      "/images/1rk2.webp",
-      "/images/1rk3.webp",
-      "/images/1rk4.webp"
-    ]
-  },
-  {
-    id: "room-05",
-    name: "Room 05",
-    category: "X",
-    detail: "ROOM 05",
-    capacity: "X",
-    bedConfig: "X",
-    roomSize: "X",
-    price: "X",
-    availability: "On Enquiry",
-    description: "X",
-    src: "/images/skylinesuite5.webp",
-    alt: "The Conclave — Room 05 preview (replaceable asset)",
-    aspectRatio: "4/5",
-    amenities: [
-      "Air Conditioning",
-      "Attached Bathroom",
-      "High-Speed WiFi",
-      "Daily Housekeeping",
-      "Comfort Bedding",
-      "Dedicated Lighting"
-    ],
-    perfectFor: ["Families", "Extended Stay", "Long Visits"],
-    images: [
-      "/images/skylinesuite5.webp",
-      "/images/skylinesuite6.webp",
-      "/images/2bhk5.webp",
-      "/images/2bhk6.webp"
-    ]
-  },
-  {
-    id: "room-06",
-    name: "Room 06",
-    category: "X",
-    detail: "ROOM 06",
-    capacity: "X",
-    bedConfig: "X",
-    roomSize: "X",
-    price: "X",
-    availability: "On Enquiry",
-    description: "X",
-    src: "/images/nirbili5.webp",
-    alt: "The Conclave — Room 06 preview (replaceable asset)",
-    aspectRatio: "4/5",
-    amenities: [
-      "Air Conditioning",
-      "Attached Bathroom",
-      "High-Speed WiFi",
-      "Daily Housekeeping",
-      "Comfort Bedding",
-      "Dedicated Lighting"
-    ],
-    perfectFor: ["Families", "Couples", "Weekend Getaway"],
-    images: [
-      "/images/nirbili5.webp",
-      "/images/nirbili6.webp",
-      "/images/2bhk7.webp",
-      "/images/1rk5.webp"
-    ]
-  }
-];
+export const roomsData = importedRooms;
 
 /**
- * Property Amenities (Data-driven)
+ * Property Amenities (Verified & Data-driven)
  */
 export const propertyAmenitiesData = [
   {
     id: "amenity-1",
     title: "Air Conditioned Rooms",
-    description: "Climate-controlled rooms providing reliable comfort during all seasons.",
+    description: "Climate-controlled comfort in all six rooms (Grand Suite features two AC units).",
     icon: "snowflake"
   },
   {
     id: "amenity-2",
-    title: "High-Speed WiFi",
-    description: "Consistent internet connectivity for remote work, streaming, and staying connected.",
-    icon: "wifi"
+    title: "Television in Every Room",
+    description: "In-room entertainment available across all six guest rooms.",
+    icon: "tv"
   },
   {
     id: "amenity-3",
-    title: "Private Attached Bathrooms",
-    description: "Clean, hygienic attached bathrooms with modern fittings and hot water.",
+    title: "Attached Private Bathrooms",
+    description: "Clean, hygienic attached bathrooms with modern fittings in every room.",
     icon: "shower"
   },
   {
     id: "amenity-4",
-    title: "Daily Housekeeping",
-    description: "Regular cleaning and care to keep your room comfortable throughout your stay.",
-    icon: "sparkles"
+    title: "Shared Dining Area",
+    description: "A common dining facility on the property for guests to enjoy meals in comfort.",
+    icon: "utensils"
   },
   {
     id: "amenity-5",
-    title: "Secure On-Site Parking",
-    description: "Convenient parking area within the property grounds for guest vehicles.",
-    icon: "car"
+    title: "Balconies & Views",
+    description: "Highway-facing balconies on Vista Rooms; private balconies on Comfort Rooms.",
+    icon: "home"
   },
   {
     id: "amenity-6",
-    title: "Peaceful Residential Setting",
-    description: "Quiet surroundings in Khanikar designed for unhurried rest and privacy.",
-    icon: "home"
+    title: "Convenient Highway Location",
+    description: "Situated in Khanikar Chariali, approximately 10 minutes from Dibrugarh Airport.",
+    icon: "car"
   }
 ];
 
 /**
- * Brand Philosophy / Why Stay With Us
+ * Brand Highlights / Why Stay With Us
  */
 export const whyStayWithUsData = [
   {
     id: 0,
-    title: "THOUGHTFUL HOSPITALITY",
-    desc: "A warm, personal welcome crafted around simplicity, attentive care, and quiet comfort without intrusive fuss."
+    title: "A COMFORTABLE STAY",
+    desc: "Welcome to The Conclave — Lodging and Homestay in Khanikar Chariali, Dibrugarh. Six thoughtfully arranged rooms, a shared dining area, and essential in-room comforts."
   },
   {
     id: 1,
-    title: "BOUTIQUE SIX-ROOM LODGING",
-    desc: "With only six individually appointed rooms, enjoy an intimate, uncrowded setting designed for genuine peace of mind."
+    title: "EXACTLY SIX ROOMS",
+    desc: "Choose from 2 Vista Rooms with highway-facing balconies, 1 spacious Grand Suite with 2 ACs and sofa, or 3 comfortable standard rooms."
   },
   {
     id: 2,
-    title: "PEACEFUL KHANIKAR LOCATION",
-    desc: "A calm neighborhood in Khanikar, Dibrugarh, offering restful seclusion while remaining easily accessible to transit and town."
+    title: "CONVENIENT HIGHWAY ACCESS",
+    desc: "Located in Khanikar Chariali, Dibrugarh, approximately 10 minutes from Dibrugarh Airport, providing a practical base for travellers."
   }
 ];
 
 /**
  * Nearby Attractions & Landmarks in Dibrugarh Region
- * No fabricated travel times or distances from Khanikar.
  */
 export const nearbyAttractionsData = [
   {
@@ -370,23 +186,23 @@ export const houseRulesData = [
   },
   {
     title: "Quiet Hours After 10:00 PM",
-    desc: "To preserve peaceful sleep and neighborhood tranquility, quiet hours are observed each evening."
+    desc: "To preserve peaceful sleep and tranquility, quiet hours are observed each evening."
   },
   {
     title: "Government ID Required",
     desc: "A valid government-issued photo ID is mandatory for every guest during check-in as per regulations."
   },
   {
-    title: "Respect Fellow Guests",
-    desc: "The Conclave is a considered lodging environment. We kindly ask all guests to treat fellow visitors and staff with mutual courtesy."
+    title: "Shared Dining Courtesy",
+    desc: "Our shared dining area is a common property facility. Please treat fellow guests and shared amenities with courtesy."
   },
   {
     title: "Care For Property",
-    desc: "Please treat the property and its furnishings with respect to keep the space pleasant for future guests."
+    desc: "Please treat the property and its furnishings with care to keep the space pleasant for future guests."
   },
   {
     title: "Advance Enquiries",
-    desc: "All reservations are confirmed through direct host communication to ensure personalized hospitality."
+    desc: "With exactly 6 rooms, advance enquiry is recommended to confirm your preferred dates."
   }
 ];
 
@@ -397,31 +213,31 @@ export const faqData = [
   {
     id: "faq-01",
     question: "Where is The Conclave located in Dibrugarh?",
-    answer: "The Conclave is situated in Khanikar, Dibrugarh, Assam, offering a peaceful residential atmosphere with convenient road access to the rest of Dibrugarh."
+    answer: "The Conclave — Lodging and Homestay is situated in Khanikar Chariali, Dibrugarh, Assam, India. Its highway location makes it convenient for travellers, approximately 10 minutes from Dibrugarh Airport."
   },
   {
     id: "faq-02",
     question: "How many rooms does The Conclave have?",
-    answer: "The Conclave is an intimate boutique property featuring 6 individually appointed rooms, designed for privacy, quiet comfort, and attentive hosting."
+    answer: "The Conclave has exactly 6 physical rooms: two Vista Rooms (₹1,999/night), one Grand Suite (₹2,499/night), and three Comfort Rooms (₹1,499/night)."
   },
   {
     id: "faq-03",
-    question: "How do I enquire about room availability and pricing?",
-    answer: "You can submit an enquiry directly through our website booking form. All bookings require owner confirmation, ensuring each stay is thoughtfully planned."
+    question: "What amenities are provided in every room?",
+    answer: "Every room includes air conditioning, a television, and an attached bathroom. The Vista Rooms have highway-facing balconies with a better view, The Grand Suite has two AC units and a sofa, and The Comfort Rooms include private balconies."
   },
   {
     id: "faq-04",
-    question: "What amenities are provided in the rooms?",
-    answer: "Rooms feature air conditioning, attached private bathrooms, high-speed WiFi, clean linens, daily housekeeping, and power backup."
+    question: "Is there a dining facility on the property?",
+    answer: "Yes, The Conclave features a shared dining area as a common facility for all staying guests."
   },
   {
     id: "faq-05",
     question: "Who can stay at The Conclave?",
-    answer: "We welcome families, couples, business travellers, and solo visitors. In accordance with regulations, valid government photo IDs are required at check-in."
+    answer: "We welcome travellers, families, and business visitors. A valid government-issued photo ID is required for each guest at check-in."
   },
   {
     id: "faq-06",
-    question: "Is advance booking required?",
-    answer: "Because we have a select capacity of 6 rooms, we strongly recommend submitting an enquiry ahead of time to confirm dates and room availability."
+    question: "How do I enquire about room rates and availability?",
+    answer: "Explore our rooms and submit an enquiry directly through our website booking form. Reservations are confirmed directly with host review and pay-at-property convenience."
   }
 ];

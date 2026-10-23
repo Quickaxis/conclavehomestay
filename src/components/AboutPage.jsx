@@ -92,7 +92,7 @@ const AboutPage = () => {
     <div className={styles.aboutPage} ref={pageRef}>
       <SEO 
         title="About The Conclave | Lodging & Homestay in Dibrugarh"
-        description="Discover The Conclave, a design-led lodging and homestay in Khanikar, Dibrugarh. Thoughtfully envisioned for families, business travellers and those exploring Upper Assam."
+        description="Welcome to The Conclave — Lodging and Homestay in Khanikar Chariali, Dibrugarh, Assam. Six rooms, shared dining area, and highway convenience approximately 10 minutes from Dibrugarh Airport."
         path="/about"
       />
 
@@ -102,10 +102,10 @@ const AboutPage = () => {
           <div className={styles.heroLeft}>
             <span className={`eyebrow hero-anim ${styles.eyebrow}`}>ABOUT THE CONCLAVE</span>
             <h1 className={`hero-anim ${styles.mainHeading}`}>
-              A MORE THOUGHTFUL WAY TO STAY IN DIBRUGARH.
+              A COMFORTABLE STAY IN KHANIKAR CHARIALI, DIBRUGARH
             </h1>
             <p className={`hero-anim ${styles.heroText}`}>
-              Discover The Conclave, a design-led lodging and homestay in Khanikar, Dibrugarh. Thoughtfully envisioned for families, business travellers and those exploring Upper Assam, it brings together considered interiors, a welcoming atmosphere and the ease of a more personal stay.
+              Welcome to The Conclave — Lodging and Homestay, a comfortable place to stay in Khanikar Chariali, Dibrugarh, Assam. With six thoughtfully arranged rooms, a shared dining area, and essential in-room comforts, The Conclave offers a convenient stay for travellers visiting Dibrugarh.
             </p>
           </div>
           
@@ -120,20 +120,20 @@ const AboutPage = () => {
       <section className={`${styles.storySection} section-container`}>
         <div className={styles.storyGrid}>
           <div className={styles.storyLeft}>
-            <span className={`eyebrow story-text ${styles.eyebrow}`}>OUR PHILOSOPHY</span>
+            <span className={`eyebrow story-text ${styles.eyebrow}`}>OUR PROPERTY</span>
             <h2 className={`story-text ${styles.storyHeading}`}>
-              GOOD DESIGN. QUIET COMFORT. A WARM WELCOME.
+              PRACTICAL COMFORTS. THOUGHTFUL ROOMS. A WARM WELCOME.
             </h2>
           </div>
           <div className={styles.storyRight}>
             <p className="story-text">
-              Travel can be full of plans, movement and new experiences. Your stay should offer a little room to slow down. At The Conclave, we believe hospitality is found in the details—in a thoughtfully arranged space, a welcoming atmosphere and the freedom to settle in at your own pace.
+              Choose from our Vista Rooms with highway-facing balconies, the spacious Grand Suite with additional room to relax, or our comfortable standard rooms. Every room includes air conditioning, a television, and an attached bathroom.
             </p>
             <p className="story-text">
-              With six rooms, an in-house restaurant and a location in Khanikar, The Conclave offers a considered base for family visits, work trips and journeys across Upper Assam.
+              With six thoughtfully arranged rooms, a shared dining area, and essential in-room comforts, The Conclave offers a convenient stay for travellers visiting Dibrugarh.
             </p>
             <p className="story-text">
-              Our approach is simple: create a place that feels distinctive without feeling complicated, and welcoming without being overstated.
+              Whether you are travelling through the region or visiting Dibrugarh, The Conclave offers a practical and welcoming base for your stay.
             </p>
           </div>
         </div>
@@ -149,20 +149,20 @@ const AboutPage = () => {
         <div className={styles.valuesGrid}>
           <div className={`value-card ${styles.valueCard}`}>
             <span className={styles.cardNumber}>01</span>
-            <h3 className={styles.cardTitle}>THOUGHTFUL DESIGN</h3>
-            <p className={styles.cardText}>Considered interiors and a carefully shaped atmosphere create a welcoming setting for your time away.</p>
+            <h3 className={styles.cardTitle}>SIX THOUGHTFUL ROOMS</h3>
+            <p className={styles.cardText}>Choose between Vista Rooms with highway-facing balconies, the spacious Grand Suite with extra room, or practical Comfort Rooms.</p>
           </div>
           
           <div className={`value-card ${styles.valueCard}`}>
             <span className={styles.cardNumber}>02</span>
-            <h3 className={styles.cardTitle}>JUST SIX ROOMS</h3>
-            <p className={styles.cardText}>Six guest rooms give The Conclave its own intimate character, with space to make your stay your own.</p>
+            <h3 className={styles.cardTitle}>SHARED DINING AREA</h3>
+            <p className={styles.cardText}>A dedicated common dining area on the property provides a welcoming space for guests to enjoy meals.</p>
           </div>
           
           <div className={`value-card ${styles.valueCard}`}>
             <span className={styles.cardNumber}>03</span>
-            <h3 className={styles.cardTitle}>ROOTED IN KHANIKAR</h3>
-            <p className={styles.cardText}>Stay in Khanikar, Dibrugarh, with a convenient base for your visit to Upper Assam.</p>
+            <h3 className={styles.cardTitle}>HIGHWAY CONVENIENCE</h3>
+            <p className={styles.cardText}>Set along the highway in Khanikar Chariali, approximately 10 minutes from Dibrugarh Airport, making transit effortless.</p>
           </div>
         </div>
       </section>
@@ -173,10 +173,10 @@ const AboutPage = () => {
           <div className={styles.locationContent}>
             <span className={`eyebrow location-anim ${styles.eyebrow}`}>OUR LOCATION</span>
             <h2 className={`location-anim ${styles.locationHeading}`}>
-              YOUR STAY IN KHANIKAR, DIBRUGARH.
+              YOUR STAY IN KHANIKAR CHARIALI, DIBRUGARH.
             </h2>
             <p className={`location-anim ${styles.locationText}`}>
-              Set in Khanikar, Dibrugarh, Assam, The Conclave welcomes guests visiting for work, family occasions or a journey through Upper Assam. Make yourself at home and discover the area at your own pace.
+              Located in Khanikar Chariali, Dibrugarh, Assam, The Conclave offers a practical and welcoming base for travellers visiting Dibrugarh or journeying through Upper Assam. The highway location provides effortless road connectivity, approximately 10 minutes from Dibrugarh Airport.
             </p>
           </div>
           

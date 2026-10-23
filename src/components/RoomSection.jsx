@@ -10,7 +10,9 @@ import { useBooking } from '../context/BookingContext';
 gsap.registerPlugin(ScrollTrigger);
 
 const RoomCard = ({ room, verifiedRoom }) => {
-  const hasLiveRate = verifiedRoom && typeof verifiedRoom.nightlyRate === 'number' && verifiedRoom.nightlyRate > 0;
+  const effectiveRate = (verifiedRoom && typeof verifiedRoom.nightlyRate === 'number' && verifiedRoom.nightlyRate > 0)
+    ? verifiedRoom.nightlyRate
+    : room.price;
 
   return (
     <a 
@@ -32,16 +34,10 @@ const RoomCard = ({ room, verifiedRoom }) => {
       </div>
       <div className={styles.cardContent}>
         <div className={styles.cardHeader}>
-          {room.detail && <span className={styles.detailPill}>{room.detail}</span>}
-          {hasLiveRate ? (
-            <span className={styles.pricePill} style={{ borderColor: 'var(--color-gold)', color: 'var(--color-burgundy)', fontWeight: '700' }}>
-              APPROVED RATE: ₹{verifiedRoom.nightlyRate.toLocaleString()} / NIGHT
-            </span>
-          ) : (
-            <span className={styles.pricePill}>
-              RATE: ON ENQUIRY • ROOM SETUP IN PROGRESS
-            </span>
-          )}
+          {room.category && <span className={styles.detailPill}>{room.category.toUpperCase()}</span>}
+          <span className={styles.pricePill} style={{ borderColor: 'var(--color-gold)', color: 'var(--color-burgundy)', fontWeight: '700' }}>
+            ₹{effectiveRate.toLocaleString()} / NIGHT
+          </span>
         </div>
         <div className={styles.cardFooter}>
           <div className={styles.cardMeta}>

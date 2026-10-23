@@ -41,20 +41,20 @@ const featuresData = [
   {
     id: 0,
     icon: SparkleIcon,
-    title: "A WELCOMING STAY",
-    desc: "A considered setting for family visits, business travel and time spent exploring Upper Assam."
+    title: "A COMFORTABLE STAY",
+    desc: "Welcome to The Conclave — Lodging and Homestay. Six thoughtfully arranged rooms, a shared dining area, and essential in-room comforts."
   },
   {
     id: 1,
     icon: HomeIcon,
-    title: "SIX DISTINCTIVE ROOMS",
-    desc: "Discover six guest rooms at a design-led homestay created around a more personal approach to hospitality."
+    title: "SIX THOUGHTFUL ROOMS",
+    desc: "Choose from 2 Vista Rooms with highway-facing balconies, 1 spacious Grand Suite with two ACs and sofa, or 3 comfortable standard rooms."
   },
   {
     id: 2,
     icon: MapPinIcon,
-    title: "A KHANIKAR ADDRESS",
-    desc: "Make The Conclave your base in Dibrugarh, whether you are visiting for work, family or travel."
+    title: "KHANIKAR CHARIALI",
+    desc: "Convenient highway location in Khanikar Chariali, Dibrugarh, approximately 10 minutes from Dibrugarh Airport."
   }
 ];
 
@@ -210,7 +210,7 @@ const WhyChooseUs = () => {
       <div className={`section-container ${styles.container}`}>
         <div ref={headerRef} className={styles.header}>
           <span className={styles.eyebrow}>THE CONCLAVE EXPERIENCE</span>
-          <h2 className={styles.heading}>A STAY THAT FEELS CONSIDERED.</h2>
+          <h2 className={styles.heading}>A COMFORTABLE STAY IN KHANIKAR CHARIALI, DIBRUGARH</h2>
         </div>
 
         <div ref={div1Ref} className={styles.dashedDivider}></div>
@@ -218,19 +218,19 @@ const WhyChooseUs = () => {
         <div className={styles.statsRow}>
           <div className={styles.statItem} ref={el => statsRef.current[0] = el}>
             <div className={styles.statValue}>6 ROOMS</div>
-            <div className={styles.statLabel}>A BOUTIQUE LODGING EXPERIENCE</div>
+            <div className={styles.statLabel}>2 VISTA • 1 SUITE • 3 COMFORT</div>
           </div>
           <div className={styles.statItem} ref={el => statsRef.current[1] = el}>
-            <div className={styles.statValue}>KHANIKAR</div>
+            <div className={styles.statValue}>KHANIKAR CHARIALI</div>
             <div className={styles.statLabel}>DIBRUGARH, ASSAM</div>
           </div>
           <div className={styles.statItem} ref={el => statsRef.current[2] = el}>
-            <div className={styles.statValue}>IN-HOUSE RESTAURANT</div>
-            <div className={styles.statLabel}>DINING AVAILABLE ON THE PROPERTY</div>
+            <div className={styles.statValue}>SHARED DINING AREA</div>
+            <div className={styles.statLabel}>COMMON PROPERTY FACILITY</div>
           </div>
           <div className={styles.statItem} ref={el => statsRef.current[3] = el}>
-            <div className={styles.statValue}>ON-SITE PARKING</div>
-            <div className={styles.statLabel}>PARKING AVAILABLE FOR GUESTS</div>
+            <div className={styles.statValue}>HIGHWAY LOCATION</div>
+            <div className={styles.statLabel}>APPROX. 10 MINS FROM AIRPORT</div>
           </div>
         </div>
 

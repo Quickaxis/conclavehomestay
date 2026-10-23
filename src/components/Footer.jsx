@@ -22,7 +22,7 @@ const Footer = () => {
               <a href="/" className={styles.logo}>THE CONCLAVE HOMESTAY</a>
             </div>
             <p className={styles.brandDesc}>
-              A considered stay in Khanikar, Dibrugarh, Assam. Six guest rooms, thoughtfully designed for a welcoming stay.
+              A comfortable lodging and homestay in Khanikar Chariali, Dibrugarh, Assam. Six rooms, shared dining area, and highway convenience approximately 10 minutes from Dibrugarh Airport.
             </p>
           </div>
           
@@ -61,7 +61,7 @@ const Footer = () => {
               </button>
               <a href="/contact" className={styles.footerLink}>Direct Enquiry</a>
               <p className={styles.locationDetail}>
-                Khanikar, Dibrugarh, Assam
+                Khanikar Chariali, Dibrugarh, Assam
               </p>
             </div>
           </div>
@@ -73,7 +73,7 @@ const Footer = () => {
           </div>
           <div className={styles.location}>
             <div>The Conclave — Lodging & Homestay</div>
-            <div>Khanikar • Dibrugarh • Assam</div>
+            <div>Khanikar Chariali • Dibrugarh • Assam</div>
           </div>
         </div>
         

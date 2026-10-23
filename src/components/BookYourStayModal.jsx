@@ -90,19 +90,21 @@ const BookYourStayModal = () => {
 
   if (!isModalOpen) return null;
 
-  // Resolve room details - only real database rooms have verified rates
+  // Resolve room details - uses real HMS rooms if active, otherwise the 6 confirmed rooms
   const availableRoomsList = verifiedHmsRooms.length > 0 
     ? verifiedHmsRooms 
     : roomsData.map(r => ({
         id: r.id,
+        legacyId: r.legacyId,
         name: r.name,
+        category: r.category,
         roomNumber: r.detail,
-        nightlyRate: null,
-        maxGuests: null,
+        nightlyRate: r.price,
+        maxGuests: 3,
         description: r.description
       }));
 
-  const activeRoom = availableRoomsList.find(r => r.id === selectedRoomId) || availableRoomsList[0];
+  const activeRoom = availableRoomsList.find(r => r.id === selectedRoomId || r.legacyId === selectedRoomId) || availableRoomsList[0];
 
   // Calculate nights
   const checkInDate = new Date(checkIn);
@@ -111,9 +113,11 @@ const BookYourStayModal = () => {
     ? Math.max(1, Math.round((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)))
     : 1;
 
-  // Live total price only when real verified nightly rate exists in HMS
-  const hasLiveRate = activeRoom && typeof activeRoom.nightlyRate === 'number' && activeRoom.nightlyRate > 0;
-  const estimatedTotalPrice = hasLiveRate ? activeRoom.nightlyRate * nights : null;
+  // Multi-night estimate calculated from the selected room's configured nightly rate
+  const activeRate = (activeRoom && typeof activeRoom.nightlyRate === 'number' && activeRoom.nightlyRate > 0)
+    ? activeRoom.nightlyRate
+    : 1499;
+  const estimatedTotalPrice = activeRate * nights;
 
   // Form submission handler: submits booking request directly to HMS
   const handleBookingSubmit = async (e) => {
@@ -185,6 +189,7 @@ const BookYourStayModal = () => {
       phone: guestPhone.trim(),
       email: guestEmail.trim() || null,
       dates: `${checkIn} to ${checkOut}`,
+      roomPreference: activeRoom ? `${activeRoom.name} (₹${activeRate.toLocaleString()}/night)` : 'Any Room',
       numberOfGuests: parseInt(guests, 10) || 1,
       message: specialRequests.trim() || null
     };
@@ -258,6 +263,14 @@ const BookYourStayModal = () => {
               <div className={styles.receiptRow}>
                 <span className={styles.receiptLabel}>GUESTS:</span>
                 <span className={styles.receiptVal}>{guests} Guest{guests > 1 ? 's' : ''}</span>
+              </div>
+              <div className={styles.receiptRow}>
+                <span className={styles.receiptLabel}>PREFERRED ROOM:</span>
+                <span className={styles.receiptVal}>{activeRoom?.name}</span>
+              </div>
+              <div className={styles.receiptRow}>
+                <span className={styles.receiptLabel}>ESTIMATED PAYABLE:</span>
+                <span className={styles.receiptPrice}>₹{estimatedTotalPrice.toLocaleString()} ({nights} night{nights > 1 ? 's' : ''})</span>
               </div>
               <div className={styles.receiptRow}>
                 <span className={styles.receiptLabel}>PAYMENT POLICY:</span>
@@ -368,6 +381,25 @@ const BookYourStayModal = () => {
 
             <form onSubmit={handleEnquirySubmit} className={styles.form}>
               
+              {/* Room Selection */}
+              <div className={styles.fieldGroup}>
+                <label htmlFor="modal-enquiry-room-select" className={styles.fieldLabel}>
+                  SELECT ROOM
+                </label>
+                <select
+                  id="modal-enquiry-room-select"
+                  value={activeRoom?.id || selectedRoomId}
+                  onChange={(e) => setSelectedRoomId(e.target.value)}
+                  className={styles.select}
+                >
+                  {availableRoomsList.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name} — ₹{r.nightlyRate?.toLocaleString()}/night
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Preferred Dates & Guests Grid */}
               <div className={styles.gridRow}>
                 <div className={styles.fieldGroup}>
@@ -418,15 +450,19 @@ const BookYourStayModal = () => {
                 </div>
               </div>
 
-              {/* Rate Notice */}
+              {/* Dynamic Rate Notice */}
               <div className={styles.pricingSummaryBox}>
                 <div className={styles.pricingRow}>
-                  <span className={styles.pricingLabel}>Approved Nightly Rate</span>
-                  <span className={styles.pricingValue}>Published Upon Room Launch</span>
+                  <span className={styles.pricingLabel}>
+                    {activeRoom?.name} (₹{activeRate.toLocaleString()} × {nights} night{nights > 1 ? 's' : ''})
+                  </span>
+                  <span className={styles.pricingValue}>
+                    ₹{estimatedTotalPrice.toLocaleString()}
+                  </span>
                 </div>
                 <div className={styles.pricingNotice}>
                   <ShieldCheck size={13} className={styles.goldIcon} />
-                  <span>Stay Enquiry • This is an inquiry, not a confirmed booking. No inventory is locked.</span>
+                  <span>Stay Enquiry • Payment due upon arrival directly at property. No inventory is locked.</span>
                 </div>
               </div>
 

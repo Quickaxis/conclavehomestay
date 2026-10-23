@@ -78,7 +78,7 @@ const ContactPage = () => {
     <div id="contact" className={styles.pageWrapper}>
       <SEO 
         title="Contact The Conclave | Dibrugarh, Assam"
-        description="Contact The Conclave in Khanikar, Dibrugarh for room bookings, pricing, and stay enquiries. Reach our team directly via our stay enquiry form."
+        description="Contact The Conclave in Khanikar Chariali, Dibrugarh for room bookings, pricing, and stay enquiries. Reach our team directly via our stay enquiry form."
         path="/contact"
       />
       <div className={`section-container ${styles.container}`}>
@@ -94,7 +94,7 @@ const ContactPage = () => {
           <span className={styles.eyebrow}>SAY HELLO</span>
           <h2 className={styles.heading}>TALK TO US</h2>
           <p className={styles.supportingText}>
-            Planning your stay in Dibrugarh? Have a question about our six boutique rooms, amenities, location, or direct booking? We’re always here to assist you.
+            Planning your stay in Dibrugarh? Have a question about our six rooms across The Vista Rooms (₹1,999), The Grand Suite (₹2,499), and The Comfort Rooms (₹1,499), shared dining area, or stay enquiry? We’re always here to assist you.
           </p>
         </div>
 
@@ -147,8 +147,8 @@ const ContactPage = () => {
               </div>
               <div className={styles.cardInfo}>
                 <span className={styles.cardEyebrow}>LOCATION</span>
-                <span className={styles.cardMain}>The Conclave, Khanikar, Dibrugarh</span>
-                <span className={styles.cardSub}>Khanikar, Dibrugarh, Assam, India</span>
+                <span className={styles.cardMain}>The Conclave, Khanikar Chariali, Dibrugarh</span>
+                <span className={styles.cardSub}>Khanikar Chariali, Dibrugarh, Assam, India</span>
               </div>
             </div>
 

@@ -1,42 +1,42 @@
 export const faqData = [
   {
     id: "faq-01",
-    question: "What are the check-in and check-out times?",
-    answer: "Check-in and check-out timings are X. Please contact us to confirm your arrival and departure arrangements."
+    question: "Where is The Conclave located in Dibrugarh?",
+    answer: "The Conclave — Lodging and Homestay is located in Khanikar Chariali, Dibrugarh, Assam, India. The highway location makes the property particularly convenient for travellers, approximately 10 minutes from Dibrugarh Airport."
   },
   {
     id: "faq-02",
-    question: "Where is The Conclave located in Dibrugarh?",
-    answer: "The Conclave is located in Khanikar, Dibrugarh, Assam, offering a convenient base for family visits, work trips and journeys across Upper Assam."
+    question: "How many rooms does The Conclave have?",
+    answer: "The property has exactly 6 physical rooms: Category A: The Vista Room (2 rooms at ₹1,999 per night), Category B: The Grand Suite (1 room at ₹2,499 per night), and Category C: The Comfort Room (3 rooms at ₹1,499 per night)."
   },
   {
     id: "faq-03",
-    question: "How many rooms does The Conclave have?",
-    answer: "The Conclave features six guest rooms, an in-house restaurant, and on-site parking in Khanikar, Dibrugarh."
+    question: "What amenities are included in all rooms?",
+    answer: "All six rooms include air conditioning, a television, and an attached bathroom. The Vista Rooms feature highway-facing balconies with a better view, The Grand Suite includes two AC units and a sofa, and The Comfort Rooms include private balconies."
   },
   {
     id: "faq-04",
-    question: "Who can stay at The Conclave?",
-    answer: "The Conclave welcomes families, business travellers and tourists visiting Dibrugarh and Upper Assam. A valid government-issued photo ID is required during check-in."
+    question: "What is the difference between the Vista Rooms and Comfort Rooms?",
+    answer: "The Vista Rooms (₹1,999 per night) feature a highway-facing balcony with a better view. The Comfort Rooms (₹1,499 per night) also have private balconies, but with a simpler, less attractive view than the Vista Rooms, making them a practical and value-oriented choice."
   },
   {
     id: "faq-05",
-    question: "What amenities are provided in the rooms?",
-    answer: "Until confirmed, room names, individual room prices, bed types, occupancy, sizes, air conditioning, bathroom details and other room amenities are X. Contact us to confirm specific room details, rates and availability."
+    question: "What makes The Grand Suite unique?",
+    answer: "The Grand Suite (₹2,499 per night) is our largest and most spacious room. It is equipped with two AC units, a television, an attached bathroom, and a sofa—designed for guests who prefer extra space."
   },
   {
     id: "faq-06",
-    question: "Is dining available at The Conclave?",
-    answer: "Good food, part of your stay. An in-house restaurant is available at The Conclave. Contact us for current menu details, meal options and operating hours. Cuisine, menu, timings and meal prices remain X until provided."
+    question: "Is there a dining facility at the property?",
+    answer: "Yes, The Conclave features a shared dining area as a common facility for our guests."
   },
   {
     id: "faq-07",
-    question: "Is parking available on the property?",
-    answer: "Yes, on-site parking is available for guests on the property."
+    question: "What are the room rates?",
+    answer: "Rates are per room per night: The Vista Rooms are ₹1,999 per night, The Grand Suite is ₹2,499 per night, and The Comfort Rooms are ₹1,499 per night."
   },
   {
     id: "faq-08",
     question: "How can I enquire or book a stay?",
-    answer: "Explore our six rooms and get in touch to enquire about your dates. We look forward to helping you plan your stay at The Conclave."
+    answer: "You can submit a stay enquiry directly through our website booking form. All bookings are confirmed directly with host review and pay-at-property convenience."
   }
 ];

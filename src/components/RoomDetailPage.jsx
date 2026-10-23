@@ -46,8 +46,8 @@ const getAmenityIcon = (name) => {
 };
 
 const RoomDetailPage = ({ roomId }) => {
-  const room = roomsData.find(r => r.id === roomId);
-  const otherRooms = roomsData.filter(r => r.id !== roomId);
+  const room = roomsData.find(r => r.id === roomId || r.legacyId === roomId);
+  const otherRooms = roomsData.filter(r => r.id !== room?.id);
 
   const pageRef = useRef(null);
   const infoRef = useRef(null);
@@ -84,22 +84,30 @@ const RoomDetailPage = ({ roomId }) => {
   let liveAvail = null;
   if (availabilityData && Array.isArray(availabilityData.rooms)) {
     liveAvail = availabilityData.rooms.find(r => {
-      if (r.id === room.id) return true;
+      if (r.id === room.id || r.id === room.legacyId) return true;
       if (r.roomNumber) {
         const num = r.roomNumber.trim().replace(/^0+/, '');
-        return room.id === `room-${num.padStart(2, '0')}` || room.id === `room-${num}`;
+        return room.id === `the-vista-room-${num.padStart(2, '0')}` ||
+               room.id === `the-comfort-room-${num.padStart(2, '0')}` ||
+               room.legacyId === `room-${num.padStart(2, '0')}` ||
+               room.legacyId === `room-${num}`;
       }
       return false;
     });
   }
 
   const isAvailable = liveAvail ? liveAvail.isAvailable : null;
+  const roomRate = (liveAvail && typeof liveAvail.nightlyRate === 'number' && liveAvail.nightlyRate > 0)
+    ? liveAvail.nightlyRate
+    : room.price;
+  const nights = availabilityData?.nights || 1;
+  const totalEstimate = roomRate * nights;
 
   return (
     <div className={styles.pageWrapper} ref={pageRef}>
       <SEO 
-        title={`${room.name} | The Conclave Dibrugarh`}
-        description={`Explore ${room.name} at The Conclave in Khanikar, Dibrugarh. ${room.description} Real-time availability and pay-at-property booking.`}
+        title={`${room.name} (${room.priceDisplay}/night) | The Conclave Dibrugarh`}
+        description={`${room.name} at The Conclave in Khanikar Chariali, Dibrugarh, Assam. ${room.description}`}
         path={`/rooms/${room.id}`}
         ogImage={room.images[0]}
       />
@@ -133,7 +141,7 @@ const RoomDetailPage = ({ roomId }) => {
           <div className={styles.contentCol} ref={infoRef}>
             <div>
               <div className={styles.eyebrow}>
-                ROOM: {room.name} • THE CONCLAVE
+                {room.category.toUpperCase()} • THE CONCLAVE
               </div>
               <h1 className={styles.heading}>{room.name}</h1>
               <p className={styles.description}>
@@ -157,26 +165,17 @@ const RoomDetailPage = ({ roomId }) => {
             <div>
               <div className={styles.bookingPanel}>
                 <div>
-                  <div className={styles.priceLabel}>ROOM RATE</div>
-                  {liveAvail && liveAvail.nightlyRate ? (
-                    <div>
-                      <div className={styles.priceValue}>
-                        ₹{liveAvail.nightlyRate.toLocaleString()} <span style={{ fontSize: '13px', fontWeight: 500, color: 'inherit' }}>/ night</span>
-                      </div>
-                      {liveAvail.totalPrice && (
-                        <div style={{ fontSize: '12px', color: 'var(--color-gold)', marginTop: '4px', fontWeight: '600' }}>
-                          Total for {availabilityData.nights} night{availabilityData.nights > 1 ? 's' : ''}: ₹{liveAvail.totalPrice.toLocaleString()} (Pay at Property)
-                        </div>
-                      )}
+                  <div className={styles.priceLabel}>NIGHTLY ROOM RATE</div>
+                  <div>
+                    <div className={styles.priceValue}>
+                      ₹{roomRate.toLocaleString()} <span style={{ fontSize: '13px', fontWeight: 500, color: 'inherit' }}>/ night (per room)</span>
                     </div>
-                  ) : (
-                    <div>
-                      <div className={styles.priceValue}>Rate on Enquiry</div>
+                    {availabilityData && availabilityData.nights && (
                       <div style={{ fontSize: '12px', color: 'var(--color-gold)', marginTop: '4px', fontWeight: '600' }}>
-                        Approved nightly rates will be published once physical room configuration is complete.
+                        Total for {availabilityData.nights} night{availabilityData.nights > 1 ? 's' : ''} ({guests} guest{guests > 1 ? 's' : ''}): ₹{totalEstimate.toLocaleString()} (Pay at Property)
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
 
                 {/* Status-Aware Action Button */}
@@ -220,7 +219,7 @@ const RoomDetailPage = ({ roomId }) => {
                     </span>
                   )
                 ) : (
-                  <span>Selected dates: {checkIn} to {checkOut}. Pay upon arrival directly at property.</span>
+                  <span>Selected dates: {checkIn} to {checkOut}. Pay upon arrival directly at property. Enquiries require host confirmation before reservation is finalized.</span>
                 )}
               </div>
             </div>
@@ -248,10 +247,10 @@ const RoomDetailPage = ({ roomId }) => {
                 </div>
                 <div className={styles.exploreInfo}>
                   <h4>{otherRoom.name}</h4>
-                  <p>The Conclave • Khanikar, Dibrugarh</p>
+                  <p>{otherRoom.category} • Khanikar Chariali</p>
                 </div>
                 <div className={styles.exploreAction}>
-                  <div className={styles.price}>View Room</div>
+                  <div className={styles.price}>₹{otherRoom.price.toLocaleString()} / night</div>
                   <div className={styles.viewBtn}>DETAILS &rarr;</div>
                 </div>
               </a>
