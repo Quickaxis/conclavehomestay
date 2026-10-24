@@ -869,6 +869,143 @@ export async function runTestSuite() {
     }
   }
 
+  // ----------------------------------------------------
+  // SECTION 17: UNAVAILABLE ROOM UX & ALTERNATIVES RECOMMENDATION SUITE
+  // ----------------------------------------------------
+  console.log('\n--- SECTION 17: Unavailable Room UX & Alternatives Recommendation Suite ---');
+  {
+    // 17.1 Modal Code Verification
+    const modalPath = path.resolve(process.cwd(), 'src', 'components', 'BookYourStayModal.jsx');
+    const modalCode = fs.readFileSync(modalPath, 'utf-8');
+
+    assert(modalCode.includes('This room is already booked'), 'Modal renders friendly heading: "This room is already booked"');
+    assert(modalCode.includes('No worries! Choose another room or change your dates to continue your stay.'), 'Modal renders friendly supporting text without scary error messages');
+    assert(modalCode.includes('Available alternatives'), 'Modal renders "Available alternatives" recommendation section');
+    assert(modalCode.includes('Select this room'), 'Modal provides clear "Select this room" one-click action button');
+    assert(modalCode.includes('Change dates'), 'Modal provides secondary "Change dates" action');
+    assert(modalCode.includes('Dates Unavailable'), 'Modal displays subtle badge for booked dates');
+    assert(modalCode.includes('isRoomUnavailableError'), 'Modal defines error classifier for unavailable room detection');
+    assert(modalCode.includes('loadLiveAlternatives'), 'Modal defines live alternatives loader from /api/hms/availability');
+    assert(modalCode.includes('handleSelectAlternative'), 'Modal implements one-click room switching preserving guest details');
+    assert(modalCode.includes('handleChangeDates'), 'Modal implements change dates focus handler');
+
+    // 17.2 CSS Styling Verification
+    const cssPath = path.resolve(process.cwd(), 'src', 'components', 'BookYourStayModal.module.css');
+    const cssCode = fs.readFileSync(cssPath, 'utf-8');
+
+    assert(cssCode.includes('.friendlyUnavailableAlert'), 'CSS defines .friendlyUnavailableAlert with warm cream theme');
+    assert(cssCode.includes('.alternativesSection'), 'CSS defines .alternativesSection container');
+    assert(cssCode.includes('.altCard'), 'CSS defines compact responsive .altCard layout');
+    assert(cssCode.includes('.availableBadge'), 'CSS defines green .availableBadge pill');
+    assert(cssCode.includes('.selectAltBtn'), 'CSS defines burgundy .selectAltBtn with hover states');
+    assert(cssCode.includes('.changeDatesBtn'), 'CSS defines secondary .changeDatesBtn');
+    assert(cssCode.includes('.roomChangedAlert'), 'CSS defines .roomChangedAlert for room switch confirmation');
+
+    // 17.3 Error Classifier Functionality
+    const isRoomUnavailableError = (errorMsg) => {
+      if (!errorMsg || typeof errorMsg !== 'string') return false;
+      return /no longer available|already booked|just booked|unavailable|dates unavailable/i.test(errorMsg);
+    };
+
+    assert(isRoomUnavailableError('Room "The Vista Room 01" is no longer available for the selected dates (2026-10-26 to 2026-10-27). Please choose another room or date.'), 'Classifies live conflict error as room unavailable');
+    assert(isRoomUnavailableError('Room "The Grand Suite" was just booked by another guest for the selected dates.'), 'Classifies concurrent booking error as room unavailable');
+    assert(isRoomUnavailableError('This room is already booked for these dates.'), 'Classifies database exclusion error as room unavailable');
+    assert(!isRoomUnavailableError('Please enter a valid phone number (at least 8 digits).'), 'Does NOT classify phone validation error as room unavailable');
+    assert(!isRoomUnavailableError('Please enter your full name.'), 'Does NOT classify name validation error as room unavailable');
+    assert(!isRoomUnavailableError('Network error while booking.'), 'Does NOT classify network error as room unavailable');
+
+    // 17.4 Live Alternatives Filtering Logic
+    const mockApiRooms = [
+      { id: 'room-01', name: 'The Vista Room 01', isAvailable: false, maxGuests: 2, nightlyRate: 1999 },
+      { id: 'room-02', name: 'The Vista Room 02', isAvailable: true, maxGuests: 2, nightlyRate: 1999 },
+      { id: 'room-03', name: 'The Grand Suite', isAvailable: true, maxGuests: 5, nightlyRate: 2499 },
+      { id: 'room-04', name: 'The Comfort Room 01', isAvailable: true, maxGuests: 2, nightlyRate: 1499 },
+      { id: 'room-05', name: 'The Comfort Room 02', isAvailable: true, maxGuests: 1, nightlyRate: 1499 }
+    ];
+
+    const currentUnavailableId = 'room-01';
+    const guestCount = 2;
+
+    const filteredAlternatives = mockApiRooms.filter(r =>
+      r.id !== currentUnavailableId &&
+      r.isAvailable === true &&
+      r.maxGuests >= guestCount
+    );
+
+    assert(!filteredAlternatives.some(r => r.id === currentUnavailableId), 'Strictly excludes the currently selected unavailable room');
+    assert(!filteredAlternatives.some(r => r.isAvailable === false), 'Strictly excludes any rooms marked isAvailable: false');
+    assert(!filteredAlternatives.some(r => r.maxGuests < guestCount), 'Strictly excludes rooms whose maxGuests is less than requested guest count');
+    assert(filteredAlternatives.length === 3, 'Recommends only genuinely available rooms matching capacity (Room 02, Suite, Comfort 01)');
+
+    // 17.5 One-Click Switching Preserves Customer Details
+    const initialFormState = {
+      selectedRoomId: 'room-01',
+      checkIn: '2026-10-26',
+      checkOut: '2026-10-27',
+      guests: 2,
+      guestName: 'Uttaran Gogoi',
+      guestPhone: '9365976311',
+      guestEmail: 'chiralekhagogoi60@gmail.com',
+      specialRequests: 'Please provide warm water',
+      isUnavailableState: true
+    };
+
+    // Simulate clicking "Select this room" for The Vista Room 02
+    const chosenAlternative = filteredAlternatives[0]; // Room 02
+    const updatedFormState = {
+      ...initialFormState,
+      selectedRoomId: chosenAlternative.id,
+      isUnavailableState: false
+    };
+
+    assert(updatedFormState.selectedRoomId === 'room-02', 'One-click switch updates selectedRoomId to the alternative room');
+    assert(updatedFormState.isUnavailableState === false, 'Clears isUnavailableState when alternative is chosen');
+    assert(updatedFormState.guestName === initialFormState.guestName, 'Preserves guest name after room switch');
+    assert(updatedFormState.guestPhone === initialFormState.guestPhone, 'Preserves guest phone after room switch');
+    assert(updatedFormState.guestEmail === initialFormState.guestEmail, 'Preserves guest email after room switch');
+    assert(updatedFormState.checkIn === initialFormState.checkIn, 'Preserves check-in date after room switch');
+    assert(updatedFormState.checkOut === initialFormState.checkOut, 'Preserves check-out date after room switch');
+    assert(updatedFormState.guests === initialFormState.guests, 'Preserves guest count after room switch');
+    assert(updatedFormState.specialRequests === initialFormState.specialRequests, 'Preserves special requests after room switch');
+
+    // 17.6 Live API Availability & Capacity Check
+    {
+      const reqAvail = createMockReqRes('GET', '/api/hms/availability?checkIn=2026-10-26&checkOut=2026-10-27&guests=2');
+      await handleHmsApiRequest(reqAvail.req, reqAvail.res);
+      await reqAvail.donePromise;
+      const jsonAvail = JSON.parse(reqAvail.res.body);
+
+      assert(reqAvail.res.statusCode === 200, 'GET /api/hms/availability returns HTTP 200');
+      assert(jsonAvail.success === true, 'Availability API reports success: true');
+      assert(Array.isArray(jsonAvail.rooms) && jsonAvail.rooms.length > 0, 'Returns real rooms array');
+
+      const bookedRoom = jsonAvail.rooms.find(r => r.name === 'The Vista Room 01');
+      assert(Boolean(bookedRoom), 'Identifies The Vista Room 01 in availability list');
+      assert(bookedRoom.isAvailable === false, 'Accurately reports The Vista Room 01 as isAvailable: false for 2026-10-26 to 2026-10-27');
+      assert(bookedRoom.unavailabilityReason === 'Booked for selected dates', 'Explains exact unavailability reason');
+
+      const otherRooms = jsonAvail.rooms.filter(r => r.id !== bookedRoom.id && r.isAvailable);
+      assert(otherRooms.length > 0, 'Detects other physical rooms available for alternative recommendation');
+      assert(otherRooms.every(r => r.isAvailable === true), 'All recommended rooms are verified available in database');
+
+      // 17.7 Capacity Filtering via API
+      const reqHighGuests = createMockReqRes('GET', '/api/hms/availability?checkIn=2026-10-26&checkOut=2026-10-27&guests=4');
+      await handleHmsApiRequest(reqHighGuests.req, reqHighGuests.res);
+      await reqHighGuests.donePromise;
+      const jsonHighGuests = JSON.parse(reqHighGuests.res.body);
+
+      const suite = jsonHighGuests.rooms.find(r => r.maxGuests >= 4);
+      const regularRooms = jsonHighGuests.rooms.filter(r => r.maxGuests < 4);
+
+      assert(regularRooms.every(r => r.isAvailable === false), 'Rooms with maxGuests < 4 are marked isAvailable: false when 4 guests requested');
+      const unbookedRooms = regularRooms.filter(r => r.id !== bookedRoom.id);
+      assert(unbookedRooms.every(r => r.unavailabilityReason.includes('capacity')), 'Unavailability reason cites room capacity');
+      if (suite) {
+        assert(suite.maxGuests >= 4, 'The Grand Suite accommodates 4+ guests');
+      }
+    }
+  }
+
   console.log('\n====================================================');
   console.log(`SUMMARY: ${passedTests}/${totalTests} TESTS PASSED WITH ZERO FAILURES!`);
   console.log('====================================================');

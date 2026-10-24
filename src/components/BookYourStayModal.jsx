@@ -9,7 +9,10 @@ import {
   CreditCard, 
   RefreshCw,
   ArrowRight,
-  Clock
+  Clock,
+  CalendarX,
+  RotateCcw,
+  Sparkles
 } from 'lucide-react';
 import { useBooking } from '../context/BookingContext';
 import { roomsData } from '../data/rooms';
@@ -52,6 +55,13 @@ const BookYourStayModal = () => {
   const [requestSuccessData, setRequestSuccessData] = useState(null);
   const [enquirySuccessData, setEnquirySuccessData] = useState(null);
 
+  // Friendly Unavailable State & Live Alternatives
+  const [isUnavailableState, setIsUnavailableState] = useState(false);
+  const [alternativesList, setAlternativesList] = useState([]);
+  const [isLoadingAlternatives, setIsLoadingAlternatives] = useState(false);
+  const [alternativesError, setAlternativesError] = useState(null);
+  const [roomChangedNotice, setRoomChangedNotice] = useState(null);
+
   // Sync modalConfig when modal opens
   useEffect(() => {
     if (isModalOpen) {
@@ -79,6 +89,10 @@ const BookYourStayModal = () => {
       setFormError('');
       setRequestSuccessData(null);
       setEnquirySuccessData(null);
+      setIsUnavailableState(false);
+      setAlternativesList([]);
+      setAlternativesError(null);
+      setRoomChangedNotice(null);
     }
   }, [isModalOpen, modalConfig, hasVerifiedRooms, verifiedHmsRooms]);
 
@@ -147,10 +161,76 @@ const BookYourStayModal = () => {
   const activeRate = hasLiveRate ? activeRoom.nightlyRate : null;
   const estimatedTotalPrice = (activeRate && nights) ? activeRate * nights : null;
 
+  // Helper: Detect room-unavailable error from API
+  const isRoomUnavailableError = (errorMsg) => {
+    if (!errorMsg || typeof errorMsg !== 'string') return false;
+    return /no longer available|already booked|just booked|unavailable|dates unavailable/i.test(errorMsg);
+  };
+
+  // Fetch verified live alternatives from /api/hms/availability
+  const loadLiveAlternatives = async (inDate, outDate, guestCount, currentRoomId) => {
+    if (!inDate || !outDate) return;
+    setIsLoadingAlternatives(true);
+    setAlternativesError(null);
+
+    try {
+      const query = new URLSearchParams({
+        checkIn: inDate,
+        checkOut: outDate,
+        guests: String(guestCount || 1)
+      });
+
+      const res = await fetch(`/api/hms/availability?${query.toString()}`);
+      const data = await res.json();
+
+      if (res.ok && data.success && Array.isArray(data.rooms)) {
+        // Exclude the current unavailable room, ensure isAvailable is true, and enforce capacity
+        const validAlternatives = data.rooms.filter(r =>
+          r.id !== currentRoomId &&
+          r.isAvailable === true &&
+          r.maxGuests >= parseInt(guestCount || 1, 10)
+        );
+        setAlternativesList(validAlternatives);
+      } else {
+        setAlternativesError(data.error || 'Unable to check live room availability at this time.');
+        setAlternativesList([]);
+      }
+    } catch (err) {
+      console.error('[BookYourStayModal] Failed to fetch live alternatives:', err);
+      setAlternativesError('Network error while checking live availability.');
+      setAlternativesList([]);
+    } finally {
+      setIsLoadingAlternatives(false);
+    }
+  };
+
+  // One-click alternative selection: switch room, preserve all customer details
+  const handleSelectAlternative = (altRoom) => {
+    setSelectedRoomId(altRoom.id);
+    setIsUnavailableState(false);
+    setFormError('');
+    setRoomChangedNotice(`Room changed to "${altRoom.name}". Ready to confirm your stay!`);
+    setTimeout(() => {
+      setRoomChangedNotice(null);
+    }, 6000);
+  };
+
+  // Change dates action: shift focus to check-in input
+  const handleChangeDates = () => {
+    const checkInInput = document.getElementById('modal-checkin');
+    if (checkInInput) {
+      checkInInput.focus();
+      checkInInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   // Form submission handler: submits booking request directly to HMS
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     setFormError('');
+    setRoomChangedNotice(null);
 
     if (!selectedRoomId) {
       setFormError('Please select a room.');
@@ -190,9 +270,17 @@ const BookYourStayModal = () => {
     setIsSubmitting(false);
 
     if (result.success) {
+      setIsUnavailableState(false);
       setRequestSuccessData(result.data);
     } else {
-      setFormError(result.error || 'Failed to confirm reservation. Please check details or try again later.');
+      if (isRoomUnavailableError(result.error)) {
+        setIsUnavailableState(true);
+        setFormError('');
+        loadLiveAlternatives(checkIn, checkOut, guests, selectedRoomId);
+      } else {
+        setIsUnavailableState(false);
+        setFormError(result.error || 'Failed to confirm reservation. Please check details or try again later.');
+      }
     }
   };
 
@@ -583,7 +671,153 @@ const BookYourStayModal = () => {
               <span className={styles.payAtPropertyPill}>Pay at Property</span>
             </div>
 
-            {formError && (
+            {/* Room Changed Confirmation Notice */}
+            {roomChangedNotice && (
+              <div className={styles.roomChangedAlert} role="status">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <CheckCircle size={15} className={styles.changedIcon} />
+                  <span>{roomChangedNotice}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setRoomChangedNotice(null)}
+                  className={styles.dismissChangedBtn}
+                  aria-label="Dismiss notice"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            )}
+
+            {/* 1. Friendly Unavailable Room Alert */}
+            {isUnavailableState && (
+              <div className={styles.friendlyUnavailableAlert} role="alert" aria-live="polite">
+                <div className={styles.unavailableIconWrap}>
+                  <CalendarX size={18} className={styles.unavailableIcon} />
+                </div>
+                <div className={styles.unavailableContent}>
+                  <div className={styles.unavailableHeaderRow}>
+                    <h4 className={styles.unavailableTitle}>This room is already booked</h4>
+                    <span className={styles.bookedPill}>Dates Unavailable</span>
+                  </div>
+                  <p className={styles.unavailableText}>
+                    No worries! Choose another room or change your dates to continue your stay.
+                  </p>
+                  <div className={styles.unavailableActions}>
+                    <button
+                      type="button"
+                      onClick={handleChangeDates}
+                      className={styles.changeDatesBtn}
+                    >
+                      <Calendar size={12} />
+                      <span>Change dates</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 2. Recommended Live Alternatives Section */}
+            {isUnavailableState && (
+              <div className={styles.alternativesSection}>
+                <div className={styles.alternativesHeader}>
+                  <h4 className={styles.alternativesTitle}>
+                    <Sparkles size={13} className={styles.goldIcon} />
+                    <span>Available alternatives</span>
+                  </h4>
+                  {!isLoadingAlternatives && alternativesList.length > 0 && (
+                    <span className={styles.alternativesCount}>
+                      {alternativesList.length} available
+                    </span>
+                  )}
+                </div>
+
+                {isLoadingAlternatives ? (
+                  <div className={styles.alternativesLoading}>
+                    <RefreshCw size={16} className={styles.spinner} />
+                    <span>Checking live room availability...</span>
+                  </div>
+                ) : alternativesError ? (
+                  <div className={styles.alternativesErrorBox}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <AlertCircle size={14} />
+                      <span>{alternativesError}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => loadLiveAlternatives(checkIn, checkOut, guests, selectedRoomId)}
+                      className={styles.retryBtn}
+                    >
+                      <RotateCcw size={11} />
+                      <span>Retry</span>
+                    </button>
+                  </div>
+                ) : alternativesList.length > 0 ? (
+                  <div className={styles.alternativesGrid}>
+                    {alternativesList.map((alt) => {
+                      const altTotal = alt.totalPrice || (alt.nightlyRate * nights);
+                      return (
+                        <div key={alt.id} className={styles.altCard}>
+                          <div className={styles.altCardTop}>
+                            <div>
+                              <h5 className={styles.altRoomName}>{alt.name}</h5>
+                              <div className={styles.altMetaRow}>
+                                <span className={styles.altCapacity}>
+                                  <Users size={11} /> Up to {alt.maxGuests} guests
+                                </span>
+                                {alt.bathroomType && (
+                                  <span className={styles.altBath}>• {alt.bathroomType}</span>
+                                )}
+                              </div>
+                            </div>
+                            <span className={styles.availableBadge}>
+                              <CheckCircle size={10} /> Available
+                            </span>
+                          </div>
+
+                          <div className={styles.altCardBottom}>
+                            <div className={styles.altPriceCol}>
+                              <div className={styles.altNightly}>
+                                ₹{alt.nightlyRate?.toLocaleString()} <span className={styles.perNight}>/ night</span>
+                              </div>
+                              <div className={styles.altTotal}>
+                                ₹{altTotal?.toLocaleString()} total ({nights} night{nights > 1 ? 's' : ''})
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleSelectAlternative(alt)}
+                              className={styles.selectAltBtn}
+                            >
+                              <span>Select this room</span>
+                              <ArrowRight size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className={styles.noAlternativesBox}>
+                    <p style={{ margin: '0 0 8px', fontSize: '12px', color: '#555' }}>
+                      All rooms are booked for {checkIn} &rarr; {checkOut}.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleChangeDates}
+                      className={styles.changeDatesHighlightBtn}
+                    >
+                      <Calendar size={13} />
+                      <span>Try Different Dates</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Standard error banner (only shown for non-unavailable errors like validation) */}
+            {formError && !isUnavailableState && (
               <div className={styles.formAlert}>
                 <AlertCircle size={14} />
                 <span>{formError}</span>
@@ -600,7 +834,12 @@ const BookYourStayModal = () => {
                 <select
                   id="modal-room-select"
                   value={selectedRoomId}
-                  onChange={(e) => setSelectedRoomId(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedRoomId(e.target.value);
+                    setIsUnavailableState(false);
+                    setFormError('');
+                    setRoomChangedNotice(null);
+                  }}
                   className={styles.select}
                 >
                   {availableRoomsList.map((r) => (
@@ -622,7 +861,14 @@ const BookYourStayModal = () => {
                     type="date"
                     min={minCheckInDate}
                     value={checkIn}
-                    onChange={(e) => setCheckIn(e.target.value)}
+                    onChange={(e) => {
+                      setCheckIn(e.target.value);
+                      if (isUnavailableState) {
+                        setIsUnavailableState(false);
+                        setFormError('');
+                        setRoomChangedNotice(null);
+                      }
+                    }}
                     className={styles.input}
                     required
                   />
@@ -637,7 +883,14 @@ const BookYourStayModal = () => {
                     type="date"
                     min={checkIn || minCheckInDate}
                     value={checkOut}
-                    onChange={(e) => setCheckOut(e.target.value)}
+                    onChange={(e) => {
+                      setCheckOut(e.target.value);
+                      if (isUnavailableState) {
+                        setIsUnavailableState(false);
+                        setFormError('');
+                        setRoomChangedNotice(null);
+                      }
+                    }}
                     className={styles.input}
                     required
                   />
@@ -650,7 +903,13 @@ const BookYourStayModal = () => {
                   <select
                     id="modal-guests"
                     value={guests}
-                    onChange={(e) => setGuests(parseInt(e.target.value, 10))}
+                    onChange={(e) => {
+                      const newGuests = parseInt(e.target.value, 10);
+                      setGuests(newGuests);
+                      if (isUnavailableState) {
+                        loadLiveAlternatives(checkIn, checkOut, newGuests, selectedRoomId);
+                      }
+                    }}
                     className={styles.select}
                   >
                     <option value={1}>1 Guest</option>
