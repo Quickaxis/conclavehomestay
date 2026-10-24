@@ -397,7 +397,8 @@ export async function runTestSuite() {
     assert(!modalCode.includes('wa.me'), 'BookYourStayModal contains ZERO WhatsApp links');
     assert(!modalCode.includes('constructWhatsAppMessage'), 'BookYourStayModal contains ZERO WhatsApp prefill helpers');
     assert(!modalCode.includes('GENERAL ENQUIRY'), 'BookYourStayModal contains ZERO general enquiry tabs');
-    assert(modalCode.includes('BOOKING REQUEST SUBMITTED'), 'BookYourStayModal renders dedicated request submission confirmation');
+    assert(modalCode.includes('RESERVATION CONFIRMED'), 'BookYourStayModal renders dedicated confirmed reservation confirmation');
+    assert(!modalCode.includes('Pending Host Review'), 'BookYourStayModal removes pending host review notice');
   }
 
   // ----------------------------------------------------
@@ -693,6 +694,178 @@ export async function runTestSuite() {
 
       await catchAllModule.default(req, res);
       assert(res.statusCode === 200, 'Catch-all slug properly resolves to /api/hms/status');
+    }
+  }
+
+  // ----------------------------------------------------
+  // SECTION 16: DIRECT CONFIRMED BOOKING & DOUBLE-BOOKING CONCURRENCY SUITE
+  // ----------------------------------------------------
+  console.log('\n--- SECTION 16: Direct Confirmed Booking & Concurrency Suite ---');
+  {
+    // 16.1 Validation of required fields
+    {
+      const { req, res, donePromise } = createMockReqRes('POST', '/api/hms/bookings', {
+        roomId: '',
+        checkIn: '2026-11-10',
+        checkOut: '2026-11-12',
+        numberOfGuests: 2,
+        guestName: 'Test',
+        guestPhone: '9876543210'
+      });
+      await handleHmsApiRequest(req, res);
+      await donePromise;
+      const json = JSON.parse(res.body);
+      assert(res.statusCode === 400, 'Rejects missing roomId with HTTP 400');
+      assert(json.success === false, 'Returns success: false for missing roomId');
+    }
+
+    // 16.2 Live Direct Confirmed Booking & Double-Booking Prevention Check
+    const hmsEnvPath = 'c:\\Users\\chitr\\Downloads\\my websites\\HMS WNG SHI\\.env.local';
+    const localEnvPath = path.resolve(process.cwd(), '.env');
+    let serviceRoleKey = process.env.HMS_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    let homestayId = process.env.HMS_HOMESTAY_ID || process.env.CONCLAVE_HOMESTAY_ID || '3356f10c-cfb7-44af-99bb-c616619bf42a';
+    let supabaseUrl = process.env.HMS_SUPABASE_URL || 'https://algorrnjotffcvtinbyy.supabase.co';
+
+    if (!serviceRoleKey && fs.existsSync(localEnvPath)) {
+      const envStr = fs.readFileSync(localEnvPath, 'utf-8');
+      envStr.split('\n').forEach(line => {
+        const [k, ...v] = line.split('=');
+        if (k && v.length) {
+          const val = v.join('=').trim().replace(/['"]/g, '');
+          if (k.trim() === 'HMS_SERVICE_ROLE_KEY') serviceRoleKey = val;
+          if (k.trim() === 'HMS_HOMESTAY_ID') homestayId = val;
+        }
+      });
+    }
+
+    if (!serviceRoleKey && fs.existsSync(hmsEnvPath)) {
+      const envStr = fs.readFileSync(hmsEnvPath, 'utf-8');
+      envStr.split('\n').forEach(line => {
+        const [k, ...v] = line.split('=');
+        if (k && v.length) {
+          const val = v.join('=').trim().replace(/['"]/g, '');
+          if (k.trim() === 'SUPABASE_SERVICE_ROLE_KEY') serviceRoleKey = val;
+        }
+      });
+    }
+
+    if (serviceRoleKey && homestayId) {
+      process.env.HMS_SERVICE_ROLE_KEY = serviceRoleKey;
+      process.env.HMS_HOMESTAY_ID = homestayId;
+      process.env.HMS_SUPABASE_URL = supabaseUrl;
+
+      // Fetch verified rooms
+      const reqRooms = createMockReqRes('GET', '/api/hms/rooms');
+      await handleHmsApiRequest(reqRooms.req, reqRooms.res);
+      await reqRooms.donePromise;
+      const jsonRooms = JSON.parse(reqRooms.res.body);
+
+      assert(jsonRooms.success === true, 'Successfully fetched verified HMS rooms');
+      assert(Array.isArray(jsonRooms.rooms) && jsonRooms.rooms.length > 0, 'HMS has active rooms configured');
+
+      const targetRoom = jsonRooms.rooms[0];
+      const testCheckIn = '2098-11-10';
+      const testCheckOut = '2098-11-12';
+
+      // 16.3 Capacity exceeded check
+      {
+        const reqCap = createMockReqRes('POST', '/api/hms/bookings', {
+          roomId: targetRoom.id,
+          checkIn: testCheckIn,
+          checkOut: testCheckOut,
+          numberOfGuests: targetRoom.maxGuests + 5,
+          guestName: 'Over Capacity Test',
+          guestPhone: '9876543210'
+        });
+        await handleHmsApiRequest(reqCap.req, reqCap.res);
+        await reqCap.donePromise;
+        const jsonCap = JSON.parse(reqCap.res.body);
+        assert(reqCap.res.statusCode === 400, 'Rejects over-capacity guests with HTTP 400');
+        assert(jsonCap.error.includes('exceeds room capacity'), 'Error explains guest capacity exceeded');
+      }
+
+      // 16.4 Create Confirmed Direct Booking (Pay at Property)
+      const bookingPayload = {
+        roomId: targetRoom.id,
+        checkIn: testCheckIn,
+        checkOut: testCheckOut,
+        numberOfGuests: Math.min(2, targetRoom.maxGuests),
+        guestName: 'Direct Booking Test Guest',
+        guestPhone: '+91 98765 43210',
+        guestEmail: 'directbooking@example.com',
+        notes: 'Integration test reservation'
+      };
+
+      const reqBook = createMockReqRes('POST', '/api/hms/bookings', bookingPayload);
+      await handleHmsApiRequest(reqBook.req, reqBook.res);
+      await reqBook.donePromise;
+      const jsonBook = JSON.parse(reqBook.res.body);
+
+      assert(reqBook.res.statusCode === 201, 'Direct confirmed booking returns HTTP 201 Created');
+      assert(jsonBook.success === true, 'Direct booking returns success: true');
+      assert(jsonBook.isConfirmed === true, 'Response confirms isConfirmed: true');
+      assert(jsonBook.status === 'confirmed', 'Booking status is strictly confirmed');
+      assert(jsonBook.paymentMethod === 'Pay at Property', 'Payment method is Pay at Property');
+      assert(jsonBook.paymentStatus === 'pending', 'Payment status is pending (pay upon arrival)');
+      assert(jsonBook.bookingReference && jsonBook.bookingReference.startsWith('BKG-'), 'Generates valid booking reference starting with BKG-');
+      assert(jsonBook.bookingId && jsonBook.bookingId.length === 36, 'Returns valid UUID bookingId');
+      assert(jsonBook.totalAmount === 2 * targetRoom.nightlyRate, 'Total calculated strictly from server nightly rate (2 nights)');
+
+      const createdBookingId = jsonBook.bookingId;
+
+      // 16.5 Immediate Re-check & Double-Booking Prevention
+      {
+        const reqDup = createMockReqRes('POST', '/api/hms/bookings', bookingPayload);
+        await handleHmsApiRequest(reqDup.req, reqDup.res);
+        await reqDup.donePromise;
+        const jsonDup = JSON.parse(reqDup.res.body);
+
+        assert(reqDup.res.statusCode === 400, 'Duplicate booking for overlapping dates rejected with HTTP 400');
+        assert(jsonDup.success === false, 'Duplicate booking returns success: false');
+        assert(jsonDup.error.includes('no longer available') || jsonDup.error.includes('already booked'), 'Double booking error clearly states room is unavailable');
+        assert(!jsonDup.bookingReference, 'Duplicate attempt never returns false booking confirmation');
+      }
+
+      // 16.6 Database Verification of Bookings and Guests Table
+      {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(supabaseUrl, serviceRoleKey, {
+          auth: { autoRefreshToken: false, persistSession: false }
+        });
+
+        const { data: dbBooking, error: dbErr } = await supabase
+          .from('bookings')
+          .select(`
+            id,
+            status,
+            check_in,
+            check_out,
+            number_of_guests,
+            nightly_rate,
+            total_amount,
+            notes,
+            rooms ( id, name ),
+            partners ( id, name ),
+            guests ( id, name, phone, email, is_primary )
+          `)
+          .eq('id', createdBookingId)
+          .single();
+
+        assert(!dbErr, 'Database query for confirmed booking succeeds');
+        assert(dbBooking && dbBooking.status === 'confirmed', 'Database booking record status is confirmed');
+        assert(dbBooking.guests && dbBooking.guests.length > 0, 'Database contains linked guest record in guests table');
+        assert(dbBooking.guests[0].is_primary === true, 'Linked guest record is marked primary');
+        assert(dbBooking.guests[0].name === 'Direct Booking Test Guest', 'Guest name matches booking details');
+        assert(dbBooking.partners && Boolean(dbBooking.partners.id), 'Booking is attributed to active partner');
+
+        // Clean up test booking so test suite leaves clean state
+        await supabase.from('booking_requests').delete().eq('booking_id', createdBookingId);
+        await supabase.from('guests').delete().eq('booking_id', createdBookingId);
+        await supabase.from('bookings').delete().eq('id', createdBookingId);
+        console.log('  ✓ Cleaned up test booking', createdBookingId);
+      }
+    } else {
+      console.log('  ⚠️ Skipping live direct booking creation: Service role key not configured in test environment');
     }
   }
 

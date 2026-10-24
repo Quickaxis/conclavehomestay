@@ -192,7 +192,7 @@ const BookYourStayModal = () => {
     if (result.success) {
       setRequestSuccessData(result.data);
     } else {
-      setFormError(result.error || 'Failed to submit booking request. Please check details or try again later.');
+      setFormError(result.error || 'Failed to confirm reservation. Please check details or try again later.');
     }
   };
 
@@ -320,27 +320,27 @@ const BookYourStayModal = () => {
             </div>
           </div>
         ) : requestSuccessData ? (
-          /* View 2: Booking Request Submitted (when real rooms are active in HMS) */
+          /* View 2: Instant Booking Confirmed (when real rooms are active in HMS) */
           <div className={styles.successContainer}>
             <div className={styles.successIconBadge}>
               <CheckCircle size={42} className={styles.successIcon} />
             </div>
-            <h3 className={styles.successHeading}>BOOKING REQUEST SUBMITTED</h3>
+            <h3 className={styles.successHeading}>RESERVATION CONFIRMED</h3>
             <p className={styles.successSubtitle}>
-              Thank you, {guestName}! Your reservation request has been received by management. Payment is due at property upon check-in.
+              Thank you, {guestName}! Your reservation at The Conclave is confirmed. Payment is due at property upon check-in.
             </p>
 
             <div className={styles.receiptCard}>
               <div className={styles.receiptRow}>
-                <span className={styles.receiptLabel}>REQUEST REFERENCE:</span>
+                <span className={styles.receiptLabel}>BOOKING REFERENCE:</span>
                 <span className={styles.receiptRef}>
-                  {requestSuccessData.requestReference || requestSuccessData.bookingReference}
+                  {requestSuccessData.bookingReference || requestSuccessData.bookingId || requestSuccessData.requestReference}
                 </span>
               </div>
               <div className={styles.receiptRow}>
                 <span className={styles.receiptLabel}>STATUS:</span>
-                <span className={styles.statusBadge}>
-                  <Clock size={12} /> Pending Host Review
+                <span className={styles.statusBadge} style={{ background: '#E6F4EA', color: '#137333' }}>
+                  <CheckCircle size={12} /> Confirmed (Pay at Property)
                 </span>
               </div>
               <div className={styles.receiptRow}>
@@ -356,9 +356,9 @@ const BookYourStayModal = () => {
                 <span className={styles.receiptVal}>{guests} Guest{guests > 1 ? 's' : ''}</span>
               </div>
               <div className={styles.receiptRow}>
-                <span className={styles.receiptLabel}>ESTIMATED PAYABLE:</span>
+                <span className={styles.receiptLabel}>TOTAL PAYABLE:</span>
                 <span className={styles.receiptPrice}>
-                  {requestSuccessData.estimatedTotal ? `₹${requestSuccessData.estimatedTotal.toLocaleString()}` : (requestSuccessData.totalAmount ? `₹${requestSuccessData.totalAmount.toLocaleString()}` : 'Confirmed upon review')}
+                  {requestSuccessData.totalAmount ? `₹${requestSuccessData.totalAmount.toLocaleString()}` : (requestSuccessData.estimatedTotal ? `₹${requestSuccessData.estimatedTotal.toLocaleString()}` : 'Confirmed at property')}
                 </span>
               </div>
               <div className={styles.receiptRow}>
@@ -371,7 +371,7 @@ const BookYourStayModal = () => {
 
             <div className={styles.infoCallout}>
               <ShieldCheck size={16} />
-              <span>No online payment required. Your request appears directly in our Hotel Management System for host confirmation.</span>
+              <span>Zero upfront payment required. Your room is reserved and confirmed directly in our Hotel Management System.</span>
             </div>
 
             <div className={styles.successActions}>
@@ -576,10 +576,10 @@ const BookYourStayModal = () => {
             </form>
           </div>
         ) : (
-          /* View 4: Live Booking Request Form (when real physical rooms exist in HMS) */
+          /* View 4: Live Direct Booking Form (when real physical rooms exist in HMS) */
           <div className={styles.formContainer}>
             <div className={styles.formHeaderRow}>
-              <h3 className={styles.formTitle}>RESERVATION REQUEST</h3>
+              <h3 className={styles.formTitle}>CONFIRM RESERVATION</h3>
               <span className={styles.payAtPropertyPill}>Pay at Property</span>
             </div>
 
@@ -668,12 +668,12 @@ const BookYourStayModal = () => {
                     {hasLiveRate ? `₹${activeRoom.nightlyRate.toLocaleString()} × ${nights} night${nights > 1 ? 's' : ''}` : 'Room Rate Status'}
                   </span>
                   <span className={styles.pricingValue}>
-                    {estimatedTotalPrice ? `₹${estimatedTotalPrice.toLocaleString()}` : 'Confirmed upon Host Review'}
+                    {estimatedTotalPrice ? `₹${estimatedTotalPrice.toLocaleString()}` : 'Calculated at Booking'}
                   </span>
                 </div>
                 <div className={styles.pricingNotice}>
                   <ShieldCheck size={13} className={styles.goldIcon} />
-                  <span>Pay at Property • Requests are saved directly into the Hotel Management System.</span>
+                  <span>Pay at Property • Your reservation is confirmed directly in the Hotel Management System.</span>
                 </div>
               </div>
 
@@ -747,11 +747,11 @@ const BookYourStayModal = () => {
                 {isSubmitting ? (
                   <>
                     <RefreshCw size={16} className={styles.spinner} />
-                    <span>SAVING REQUEST TO HMS...</span>
+                    <span>CONFIRMING RESERVATION...</span>
                   </>
                 ) : (
                   <>
-                    <span>SUBMIT BOOKING REQUEST (PAY AT PROPERTY)</span>
+                    <span>CONFIRM RESERVATION (PAY AT PROPERTY)</span>
                     <ArrowRight size={16} />
                   </>
                 )}

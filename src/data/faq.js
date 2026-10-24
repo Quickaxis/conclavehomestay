@@ -37,6 +37,6 @@ export const faqData = [
   {
     id: "faq-08",
     question: "How can I enquire or book a stay?",
-    answer: "You can submit a stay enquiry directly through our website booking form. All bookings are confirmed directly with host review and pay-at-property convenience."
+    answer: "You can reserve directly through our website booking form. All bookings are confirmed instantly with pay-at-property convenience."
   }
 ];

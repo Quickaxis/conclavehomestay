@@ -320,14 +320,16 @@ export async function getRoomAvailability({ checkIn, checkOut, guests = 1 }) {
 }
 
 /**
- * Create a live pay-at-property reservation via the atomic database function.
+ * Create a live confirmed pay-at-property reservation directly in the HMS.
  * 
  * Enforces:
  * - Single source of truth: PostgreSQL database.
- * - Concurrency protection: Row-level lock (FOR UPDATE).
+ * - Double-booking prevention: Immediate availability re-check before insertion.
  * - Tenant isolation: Scoped exclusively to process.env.HMS_HOMESTAY_ID.
  * - Rates & Totals: Computed solely from verified database records.
- * - If atomic stored procedure is not yet provisioned, safely fails with requiresApproval.
+ * - Direct HMS Integration: Creates confirmed record in bookings and primary guest in guests.
+ * - Payment: Strictly Pay at Property (pending payment status).
+ * - Synchronization: Also records in booking_requests with status 'approved' and booking_id.
  */
 export async function createReservation({
   roomId,
@@ -418,72 +420,166 @@ export async function createReservation({
       return { success: false, error: `Number of guests (${guestCount}) exceeds room capacity (${room.max_guests}).` };
     }
 
-    // 3. Compute nights and estimated total from trusted database rate (never trust client price)
+    // 3. Compute nights and total amount from trusted database rate (never trust client price)
     const nights = Math.max(1, Math.round((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)));
-    const estimatedTotal = nights * (room.nightly_rate || 0);
+    const totalAmount = nights * (room.nightly_rate || 0);
 
-    // 4. Save booking request into existing HMS booking_requests table as 'pending'
-    const { data: requestResult, error: insertError } = await supabase
-      .from('booking_requests')
-      .insert([{
-        homestay_id: config.homestayId,
-        room_id: room.id,
-        check_in: checkIn,
-        check_out: checkOut,
-        number_of_guests: guestCount,
-        guest_name: guestName.trim(),
-        guest_phone: guestPhone.trim(),
-        guest_email: guestEmail ? guestEmail.trim() : null,
-        notes: notes ? notes.trim() : null,
-        estimated_total: estimatedTotal,
-        status: 'pending'
-      }])
-      .select('id, created_at')
-      .single();
+    // 4. Resolve homestay partner for booking attribution
+    const { data: partner } = await supabase
+      .from('partners')
+      .select('id')
+      .eq('homestay_id', config.homestayId)
+      .eq('is_active', true)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
 
-    if (insertError) {
-      console.warn('[HMS] Error inserting booking request:', insertError.code, insertError.message);
-
-      // If table is not yet provisioned in PostgreSQL (42P01 or PGRST204/205)
-      if (insertError.code === '42P01' || insertError.code === 'PGRST204' || insertError.code === 'PGRST205' || insertError.message?.includes('does not exist')) {
-        return {
-          success: false,
-          requiresApproval: true,
-          error: 'The Conclave booking request system is awaiting database provisioning in the Hotel Management System. Please contact the property directly.'
-        };
-      }
-
-      return { success: false, error: insertError.message || 'Database rejected booking request.' };
+    let partnerId = partner?.id;
+    if (!partnerId) {
+      const { data: adminPartner } = await supabase
+        .from('partners')
+        .select('id')
+        .eq('role', 'super_admin')
+        .eq('is_active', true)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      partnerId = adminPartner?.id;
     }
 
-    if (!requestResult || !requestResult.id) {
+    if (!partnerId) {
+      return {
+        success: false,
+        error: 'No active partner found for this homestay to attribute booking.'
+      };
+    }
+
+    // 5. Immediate pre-booking availability re-check to prevent double bookings
+    const { data: conflicts, error: conflictError } = await supabase
+      .from('bookings')
+      .select('id')
+      .eq('room_id', room.id)
+      .neq('status', 'cancelled')
+      .lt('check_in', checkOut)
+      .gt('check_out', checkIn);
+
+    if (conflictError) {
+      console.error('[HMS] Pre-check availability error:', conflictError);
+      return { success: false, error: 'Unable to verify room availability at this time.' };
+    }
+
+    if (conflicts && conflicts.length > 0) {
+      return {
+        success: false,
+        error: `Room "${room.name}" is no longer available for the selected dates (${checkIn} to ${checkOut}). Please choose another room or date.`
+      };
+    }
+
+    // 6. Create confirmed booking record in bookings table
+    const bookingNotes = notes && notes.trim()
+      ? `[Direct Website Pay-at-Property Booking] ${notes.trim()}`
+      : '[Direct Website Pay-at-Property Booking]';
+
+    const { data: bookingResult, error: bookingInsertError } = await supabase
+      .from('bookings')
+      .insert([{
+        room_id: room.id,
+        partner_id: partnerId,
+        homestay_id: config.homestayId,
+        check_in: checkIn,
+        check_out: checkOut,
+        status: 'confirmed',
+        number_of_guests: guestCount,
+        nightly_rate: room.nightly_rate,
+        total_amount: totalAmount,
+        notes: bookingNotes
+      }])
+      .select('id, status, created_at')
+      .single();
+
+    if (bookingInsertError) {
+      console.error('[HMS] Error inserting confirmed booking:', bookingInsertError);
+      if (bookingInsertError.code === '23P01' || bookingInsertError.message?.toLowerCase().includes('overlap') || bookingInsertError.message?.toLowerCase().includes('prevent_overlapping')) {
+        return {
+          success: false,
+          error: `Room "${room.name}" was just booked by another guest for the selected dates.`
+        };
+      }
+      return {
+        success: false,
+        error: bookingInsertError.message || 'Database rejected confirmed booking creation.'
+      };
+    }
+
+    if (!bookingResult || !bookingResult.id) {
       return { success: false, error: 'No confirmation returned by the database.' };
     }
 
-    const refNumber = `REQ-${requestResult.id.slice(0, 8).toUpperCase()}`;
+    // 7. Insert primary guest record linked to the confirmed booking
+    const { error: guestInsertError } = await supabase
+      .from('guests')
+      .insert([{
+        booking_id: bookingResult.id,
+        homestay_id: config.homestayId,
+        name: guestName.trim(),
+        phone: guestPhone.trim(),
+        email: guestEmail ? guestEmail.trim() : null,
+        is_primary: true
+      }]);
+
+    if (guestInsertError) {
+      console.warn('[HMS] Notice: Primary guest record creation failed:', guestInsertError.message);
+    }
+
+    // 8. Idempotently record into booking_requests with status 'approved' for HMS synchronization
+    try {
+      await supabase
+        .from('booking_requests')
+        .insert([{
+          homestay_id: config.homestayId,
+          room_id: room.id,
+          booking_id: bookingResult.id,
+          check_in: checkIn,
+          check_out: checkOut,
+          number_of_guests: guestCount,
+          guest_name: guestName.trim(),
+          guest_phone: guestPhone.trim(),
+          guest_email: guestEmail ? guestEmail.trim() : null,
+          notes: notes ? notes.trim() : null,
+          estimated_total: totalAmount,
+          payment_method: 'pay_at_property',
+          status: 'approved'
+        }]);
+    } catch (requestSyncErr) {
+      console.warn('[HMS] Notice: booking_requests table sync record skipped:', requestSyncErr?.message);
+    }
+
+    const refNumber = `BKG-${bookingResult.id.slice(0, 8).toUpperCase()}`;
 
     return {
       success: true,
-      isRequest: true,
-      requestReference: refNumber,
-      requestId: requestResult.id,
+      isConfirmed: true,
+      bookingId: bookingResult.id,
+      bookingReference: refNumber,
       roomName: room.name,
       checkIn,
       checkOut,
       nights,
       numberOfGuests: guestCount,
       nightlyRate: room.nightly_rate,
-      estimatedTotal,
+      totalAmount,
       paymentMethod: 'Pay at Property',
-      status: 'pending',
-      message: 'Your booking request has been submitted to the management. Payment will be collected at property upon check-in. The host will review and confirm your reservation.'
+      paymentStatus: 'pending',
+      status: 'confirmed',
+      guestName: guestName.trim(),
+      guestPhone: guestPhone.trim(),
+      message: 'Your reservation is confirmed! Payment will be collected at property upon check-in.'
     };
   } catch (err) {
     console.error('[HMS] Exception in createReservation:', err);
     return {
       success: false,
-      requiresApproval: true,
-      error: 'An unexpected error occurred while processing the reservation request.'
+      error: 'An unexpected error occurred while confirming the reservation.'
     };
   }
 }

@@ -238,6 +238,6 @@ export const faqData = [
   {
     id: "faq-06",
     question: "How do I enquire about room rates and availability?",
-    answer: "Explore our rooms and submit an enquiry directly through our website booking form. Reservations are confirmed directly with host review and pay-at-property convenience."
+    answer: "Explore our rooms and reserve directly through our website booking form. Confirmed reservations are created instantly with pay-at-property convenience."
   }
 ];
