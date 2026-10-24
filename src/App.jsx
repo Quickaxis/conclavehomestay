@@ -20,6 +20,7 @@ import ContactPage from './components/ContactPage';
 import NotFoundPage from './components/NotFoundPage';
 import { BookingProvider } from './context/BookingContext';
 import BookYourStayModal from './components/BookYourStayModal';
+import BookNowChoiceModal from './components/BookNowChoiceModal';
 import SEO from './components/SEO';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -140,6 +141,7 @@ function App() {
       </main>
       
       <BookYourStayModal />
+      <BookNowChoiceModal />
     </BookingProvider>
   );
 }

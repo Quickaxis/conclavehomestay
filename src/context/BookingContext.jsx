@@ -172,9 +172,24 @@ export const BookingProvider = ({ children }) => {
     setIsModalOpen(false);
   }, []);
 
-  // Prevent background scrolling when modal is open
+  // Header / Room Card Book Now choices modal
+  const [isBookNowMenuOpen, setIsBookNowMenuOpen] = useState(false);
+  const [bookNowMenuConfig, setBookNowMenuConfig] = useState({ roomId: null });
+
+  const openBookNowMenu = useCallback((config = {}) => {
+    setBookNowMenuConfig({
+      roomId: config.roomId || null
+    });
+    setIsBookNowMenuOpen(true);
+  }, []);
+
+  const closeBookNowMenu = useCallback(() => {
+    setIsBookNowMenuOpen(false);
+  }, []);
+
+  // Prevent background scrolling when modals are open
   useEffect(() => {
-    if (isModalOpen) {
+    if (isModalOpen || isBookNowMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -182,7 +197,7 @@ export const BookingProvider = ({ children }) => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isModalOpen]);
+  }, [isModalOpen, isBookNowMenuOpen]);
 
   // Submit live pay-at-property reservation
   const submitBooking = async (bookingPayload) => {
@@ -231,6 +246,12 @@ export const BookingProvider = ({ children }) => {
     modalConfig,
     openModal,
     closeModal,
+
+    // Header Book Now choices modal
+    isBookNowMenuOpen,
+    bookNowMenuConfig,
+    openBookNowMenu,
+    closeBookNowMenu,
 
     // Dates and Guests
     checkIn,

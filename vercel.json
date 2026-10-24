@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/hms/:path*",
+      "destination": "/api/hms/[...slug]"
+    },
+    {
+      "source": "/api/hms",
+      "destination": "/api/hms/index"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

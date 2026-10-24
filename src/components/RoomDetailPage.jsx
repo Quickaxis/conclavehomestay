@@ -1,158 +1,242 @@
 import React, { useEffect, useRef } from 'react';
 import { 
-  ArrowRight, 
   Snowflake, 
   ShowerHead, 
-  Wifi, 
-  Car, 
-  Utensils, 
   Tv, 
-  Briefcase, 
-  Bed, 
-  Sparkles, 
-  Clock, 
-  ShieldCheck, 
+  Home,
+  Users,
+  Armchair,
+  Wifi,
+  Car,
   Droplet,
-  CheckCircle2,
-  XCircle,
-  AlertCircle
+  Flame
 } from 'lucide-react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { roomsData } from '../data/rooms';
 import RoomCarousel from './RoomCarousel';
-import ImageSlot from './ImageSlot';
 import SEO from './SEO';
 import NotFoundPage from './NotFoundPage';
 import styles from './RoomDetailPage.module.css';
 import { useBooking } from '../context/BookingContext';
 
-gsap.registerPlugin(ScrollTrigger);
-
 const getAmenityIcon = (name) => {
   const lower = name.toLowerCase();
   if (lower.includes('air') || lower.includes('ac')) return <Snowflake className={styles.amenityIcon} />;
-  if (lower.includes('wifi')) return <Wifi className={styles.amenityIcon} />;
-  if (lower.includes('kitchen')) return <Utensils className={styles.amenityIcon} />;
-  if (lower.includes('parking')) return <Car className={styles.amenityIcon} />;
   if (lower.includes('bath') || lower.includes('shower')) return <ShowerHead className={styles.amenityIcon} />;
-  if (lower.includes('tv')) return <Tv className={styles.amenityIcon} />;
-  if (lower.includes('work') || lower.includes('desk')) return <Briefcase className={styles.amenityIcon} />;
-  if (lower.includes('bed') || lower.includes('linen')) return <Bed className={styles.amenityIcon} />;
-  if (lower.includes('clean') || lower.includes('housekeeping')) return <Sparkles className={styles.amenityIcon} />;
-  if (lower.includes('water')) return <Droplet className={styles.amenityIcon} />;
-  if (lower.includes('check') || lower.includes('time')) return <Clock className={styles.amenityIcon} />;
-  return <ShieldCheck className={styles.amenityIcon} />;
+  if (lower.includes('tv') || lower.includes('television')) return <Tv className={styles.amenityIcon} />;
+  if (lower.includes('wifi') || lower.includes('wi-fi')) return <Wifi className={styles.amenityIcon} />;
+  if (lower.includes('parking') || lower.includes('car')) return <Car className={styles.amenityIcon} />;
+  if (lower.includes('purifier') || lower.includes('water purifier')) return <Droplet className={styles.amenityIcon} />;
+  if (lower.includes('geyser') || lower.includes('hot water')) return <Flame className={styles.amenityIcon} />;
+  if (lower.includes('sofa')) return <Armchair className={styles.amenityIcon} />;
+  if (lower.includes('balcony')) return <Home className={styles.amenityIcon} />;
+  return <Home className={styles.amenityIcon} />;
 };
 
 const RoomDetailPage = ({ roomId }) => {
-  const room = roomsData.find(r => r.id === roomId || r.legacyId === roomId);
-  const otherRooms = roomsData.filter(r => r.id !== room?.id);
-
   const pageRef = useRef(null);
   const infoRef = useRef(null);
   const { 
     openModal, 
-    availabilityData, 
-    checkIn, 
-    checkOut, 
-    guests 
+    availabilityData,
+    verifiedHmsRooms,
+    isLoadingStatus
   } = useBooking();
-  
+
+  // Helper to match an HMS room with a static room record
+  const isRoomMatch = (hmsRoom, staticRoom) => {
+    if (!hmsRoom || !staticRoom) return false;
+    if (hmsRoom.id === staticRoom.id || hmsRoom.id === staticRoom.legacyId) return true;
+    if (hmsRoom.roomNumber) {
+      const rawNum = String(hmsRoom.roomNumber).trim();
+      const numOnly = rawNum.replace(/^room\s*/i, '').replace(/^0+/, '');
+      const padNum = numOnly.padStart(2, '0');
+      if (staticRoom.detail && (staticRoom.detail.toUpperCase() === `ROOM ${padNum}` || staticRoom.detail.toUpperCase() === `ROOM ${rawNum.toUpperCase()}`)) return true;
+      if (staticRoom.legacyId === `room-${padNum}` || staticRoom.legacyId === `room-${numOnly}`) return true;
+      if (staticRoom.id === `the-vista-room-${padNum}` || staticRoom.id === `the-comfort-room-${padNum}`) return true;
+      if (staticRoom.id === 'the-grand-suite' && (numOnly === '3' || padNum === '03' || rawNum === '03' || rawNum === '3')) return true;
+    }
+    if (hmsRoom.name && staticRoom.name) {
+      const hmsName = hmsRoom.name.trim().toLowerCase();
+      const staticName = staticRoom.name.trim().toLowerCase();
+      if (hmsName === staticName || hmsName.includes(staticName) || staticName.includes(hmsName)) return true;
+    }
+    return false;
+  };
+
+  // 1. Check if roomId matches a static room definition (by slug/id or legacyId)
+  const staticRoomMatch = roomsData.find(r => r.id === roomId || r.legacyId === roomId);
+
+  // 2. Check if roomId matches an actual verified HMS room UUID
+  const liveVerifiedRoom = Array.isArray(verifiedHmsRooms)
+    ? (verifiedHmsRooms.find(vr => vr.id === roomId) || (staticRoomMatch ? verifiedHmsRooms.find(vr => isRoomMatch(vr, staticRoomMatch)) : null))
+    : null;
+
+  // 3. Check if roomId matches a room in availabilityData
+  const liveAvailRoom = (availabilityData && Array.isArray(availabilityData.rooms))
+    ? (availabilityData.rooms.find(ar => ar.id === roomId) || (staticRoomMatch ? availabilityData.rooms.find(ar => isRoomMatch(ar, staticRoomMatch)) : null))
+    : null;
+
+  const liveHms = liveVerifiedRoom || liveAvailRoom;
+
+  // 4. Resolve the base presentation template from static roomsData
+  const baseStatic = staticRoomMatch || (liveHms ? (roomsData.find(sr => isRoomMatch(liveHms, sr)) || roomsData[0]) : null);
+
+  // 5. Construct unified room object
+  const room = baseStatic ? {
+    ...baseStatic,
+    id: liveHms ? liveHms.id : baseStatic.id,
+    slug: baseStatic.id,
+    legacyId: baseStatic.legacyId,
+    name: (liveHms && liveHms.name) ? liveHms.name : baseStatic.name,
+    category: baseStatic.category,
+    detail: (liveHms && liveHms.roomNumber)
+      ? (String(liveHms.roomNumber).toUpperCase().startsWith('ROOM')
+          ? String(liveHms.roomNumber).toUpperCase()
+          : `ROOM ${String(liveHms.roomNumber).replace(/^room\s*/i, '').replace(/^0+/, '').padStart(2, '0')}`)
+      : baseStatic.detail,
+    description: (liveHms && liveHms.description) ? liveHms.description : baseStatic.description,
+    price: (liveHms && typeof liveHms.nightlyRate === 'number' && liveHms.nightlyRate > 0)
+      ? liveHms.nightlyRate
+      : baseStatic.price,
+    priceDisplay: (liveHms && typeof liveHms.nightlyRate === 'number' && liveHms.nightlyRate > 0)
+      ? `₹${liveHms.nightlyRate.toLocaleString()}`
+      : baseStatic.priceDisplay,
+    capacity: (baseStatic.id === 'the-grand-suite' || baseStatic.legacyId === 'room-03' || (liveHms && (liveHms.nightlyRate === 2499 || liveHms.maxGuests >= 5)))
+      ? 'Up to 5 Guests'
+      : ((liveHms && liveHms.maxGuests) ? `Up to ${liveHms.maxGuests} Guests` : (baseStatic.capacity || 'Up to 2 Guests')),
+    amenities: baseStatic.amenities || [],
+    images: baseStatic.images || ['/images/skylinesuite4.webp']
+  } : null;
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
     const tl = gsap.timeline();
     
-    tl.fromTo(pageRef.current,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.6, ease: "power2.out" }
-    );
+    if (pageRef.current) {
+      tl.fromTo(pageRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.6, ease: "power2.out" }
+      );
+    }
     
     if (infoRef.current) {
       tl.fromTo(infoRef.current.children,
         { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power2.out" },
+        { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, ease: "power2.out" },
         "-=0.2"
       );
     }
-  }, [roomId]);
+  }, [roomId, Boolean(room)]);
 
-  if (!room) return <NotFoundPage />;
+  // If room is not yet resolved:
+  // If status is still loading from server (e.g. initial load of direct UUID link), display loading state
+  if (!room) {
+    if (isLoadingStatus) {
+      return (
+        <div className={styles.pageWrapper}>
+          <div className={styles.container} style={{ textAlign: 'center', padding: '120px 24px', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <p style={{ fontFamily: 'var(--font-primary)', color: 'var(--color-gold)', fontSize: '16px', letterSpacing: '0.05em', fontWeight: 600 }}>
+              Loading room details...
+            </p>
+          </div>
+        </div>
+      );
+    }
+    return <NotFoundPage />;
+  }
 
-  // Match room in live availability data
+  // Match room in date-specific live availability data
   let liveAvail = null;
   if (availabilityData && Array.isArray(availabilityData.rooms)) {
     liveAvail = availabilityData.rooms.find(r => {
-      if (r.id === room.id || r.id === room.legacyId) return true;
-      if (r.roomNumber) {
-        const num = r.roomNumber.trim().replace(/^0+/, '');
-        return room.id === `the-vista-room-${num.padStart(2, '0')}` ||
-               room.id === `the-comfort-room-${num.padStart(2, '0')}` ||
-               room.legacyId === `room-${num.padStart(2, '0')}` ||
-               room.legacyId === `room-${num}`;
+      if (r.id === roomId || (liveHms && r.id === liveHms.id)) return true;
+      if (baseStatic && (r.id === baseStatic.id || r.id === baseStatic.legacyId)) return true;
+      if (r.roomNumber && baseStatic) {
+        return isRoomMatch(r, baseStatic);
       }
       return false;
     });
   }
 
-  const isAvailable = liveAvail ? liveAvail.isAvailable : null;
   const roomRate = (liveAvail && typeof liveAvail.nightlyRate === 'number' && liveAvail.nightlyRate > 0)
     ? liveAvail.nightlyRate
-    : room.price;
-  const nights = availabilityData?.nights || 1;
-  const totalEstimate = roomRate * nights;
+    : ((liveHms && typeof liveHms.nightlyRate === 'number' && liveHms.nightlyRate > 0)
+        ? liveHms.nightlyRate
+        : room.price);
+
+  // Enforce: The room priced at ₹2,499 per night must display Up to 5 Guests
+  const roomCapacity = (room.id === 'the-grand-suite' || room.legacyId === 'room-03' || roomRate === 2499 || room.price === 2499)
+    ? 'Up to 5 Guests'
+    : (room.capacity || 'Up to 2 Guests');
+
+  // Comprehensive 2-column amenities list including verified in-room & property-wide amenities
+  const detailedAmenities = [
+    ...room.amenities,
+    "High-Speed Wi-Fi",
+    "Free Parking",
+    "Geyser / Hot Water",
+    "Water Purifier"
+  ];
 
   return (
     <div className={styles.pageWrapper} ref={pageRef}>
       <SEO 
-        title={`${room.name} (${room.priceDisplay}/night) | The Conclave Dibrugarh`}
+        title={`${room.name} (${roomRate ? `₹${roomRate.toLocaleString()}` : room.priceDisplay}/night) | The Conclave Dibrugarh`}
         description={`${room.name} at The Conclave in Khanikar Chariali, Dibrugarh, Assam. ${room.description}`}
-        path={`/rooms/${room.id}`}
+        path={`/rooms/${roomId || room.id}`}
         ogImage={room.images[0]}
       />
-      {/* Subtle dashed route curve in background */}
-      <svg className={styles.bgCurve} viewBox="0 0 1200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <path 
-          d="M-100,50 C 300,150 600,0 900,100 C 1200,200 1500,50 1800,100" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="1.5" 
-          strokeDasharray="6 6"
-        />
-      </svg>
 
       <div className={styles.container}>
         
-        {/* Breadcrumb */}
-        <div className={styles.breadcrumb}>
-          <a href="/">Home</a> &gt; <a href="/rooms">Rooms</a> &gt; <span>{room.name}</span>
-        </div>
+        {/* Breadcrumb Navigation: Home → Rooms → Room Name */}
+        <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
+          <a href="/">Home</a>
+          <span className={styles.crumbArrow}>&rarr;</span>
+          <a href="/rooms">Rooms</a>
+          <span className={styles.crumbArrow}>&rarr;</span>
+          <span className={styles.activeCrumb}>{room.name}</span>
+        </nav>
 
-        {/* Main Grid */}
+        {/* Alpine Nest 2-Column Detail Layout */}
         <div className={styles.grid}>
           
-          {/* Left: Carousel */}
-          <div>
-            <RoomCarousel roomId={room.id} images={room.images} />
+          {/* Left Column: Room Image Gallery with Thumbnails & Controls */}
+          <div className={styles.galleryCol}>
+            <RoomCarousel roomId={baseStatic.id} images={room.images} />
           </div>
 
-          {/* Right: Info */}
+          {/* Right Column: Room Details & Booking Panel */}
           <div className={styles.contentCol} ref={infoRef}>
-            <div>
-              <div className={styles.eyebrow}>
-                {room.category.toUpperCase()} • THE CONCLAVE
-              </div>
-              <h1 className={styles.heading}>{room.name}</h1>
-              <p className={styles.description}>
-                {liveAvail?.description || room.description}
-              </p>
+
+            {/* Category / Unit Tag */}
+            <div className={styles.headerMeta}>
+              <span className={styles.categoryBadge}>
+                {room.category.toUpperCase()} • {room.detail}
+              </span>
             </div>
 
-            <div>
-              <h3 className={styles.sectionTitle}>Room Features & Amenities</h3>
+            {/* Room Title */}
+            <h1 className={styles.heading}>{room.name}</h1>
+
+            {/* Truthful Room Description */}
+            <p className={styles.description}>
+              {liveAvail?.description || room.description}
+            </p>
+
+            {/* Guest Capacity */}
+            <div className={styles.capacityMeta}>
+              <Users size={16} className={styles.capacityIcon} />
+              <span>{roomCapacity}</span>
+            </div>
+
+            {/* Room Amenities Section (2-Column Layout with Icons) */}
+            <div className={styles.amenitiesSection}>
+              <h2 className={styles.sectionTitle}>Room Amenities</h2>
               <div className={styles.amenitiesGrid}>
-                {room.amenities.map((amenityName, idx) => (
+                {detailedAmenities.map((amenityName, idx) => (
                   <div key={idx} className={styles.amenityItem}>
                     {getAmenityIcon(amenityName)}
                     <span>{amenityName}</span>
@@ -161,100 +245,32 @@ const RoomDetailPage = ({ roomId }) => {
               </div>
             </div>
 
-            {/* Live Booking & Pricing Panel */}
-            <div>
-              <div className={styles.bookingPanel}>
-                <div>
-                  <div className={styles.priceLabel}>NIGHTLY ROOM RATE</div>
-                  <div>
-                    <div className={styles.priceValue}>
-                      ₹{roomRate.toLocaleString()} <span style={{ fontSize: '13px', fontWeight: 500, color: 'inherit' }}>/ night (per room)</span>
-                    </div>
-                    {availabilityData && availabilityData.nights && (
-                      <div style={{ fontSize: '12px', color: 'var(--color-gold)', marginTop: '4px', fontWeight: '600' }}>
-                        Total for {availabilityData.nights} night{availabilityData.nights > 1 ? 's' : ''} ({guests} guest{guests > 1 ? 's' : ''}): ₹{totalEstimate.toLocaleString()} (Pay at Property)
-                      </div>
-                    )}
+            {/* Alpine Nest Style Price Panel with Prominent BOOK YOUR STAY → Button */}
+            <div className={styles.bookingPanelContainer}>
+              <div className={styles.pricePanel}>
+                <div className={styles.priceInfo}>
+                  <span className={styles.priceLabel}>PRICE PER NIGHT</span>
+                  <div className={styles.priceValue}>
+                    ₹{roomRate.toLocaleString()}/-
                   </div>
                 </div>
 
-                {/* Status-Aware Action Button */}
-                {liveAvail && !isAvailable ? (
-                  <button 
-                    disabled 
-                    className={styles.bookBtn}
-                    style={{ background: '#CBD5E0', borderColor: '#CBD5E0', cursor: 'not-allowed', color: '#718096' }}
-                  >
-                    <XCircle size={16} /> UNAVAILABLE FOR DATES
-                  </button>
-                ) : liveAvail && isAvailable ? (
-                  <button 
-                    className={styles.bookBtn} 
-                    onClick={() => openModal({ roomId: room.id, mode: 'book' })}
-                  >
-                    RESERVE (PAY AT PROPERTY) <ArrowRight size={16} />
-                  </button>
-                ) : (
-                  <button 
-                    className={styles.bookBtn} 
-                    onClick={() => openModal({ roomId: room.id, mode: 'enquiry' })}
-                  >
-                    ENQUIRE ABOUT STAY <ArrowRight size={16} />
-                  </button>
-                )}
+                <button
+                  type="button"
+                  className={styles.bookYourStayBtn}
+                  onClick={() => openModal({ roomId: liveHms?.id || room.id, mode: 'book' })}
+                >
+                  <span>BOOK YOUR STAY</span>
+                  <span className={styles.btnArrow}>&rarr;</span>
+                </button>
               </div>
 
-              {/* Status Note */}
-              <div className={styles.subNote}>
-                {liveAvail ? (
-                  isAvailable ? (
-                    <span style={{ color: '#2F855A', fontWeight: 600 }}>
-                      <CheckCircle2 size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '4px' }} />
-                      Available for {checkIn} &rarr; {checkOut} ({guests} guest{guests > 1 ? 's' : ''})
-                    </span>
-                  ) : (
-                    <span style={{ color: '#C53030', fontWeight: 600 }}>
-                      <AlertCircle size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: '4px' }} />
-                      {liveAvail.unavailabilityReason || 'Unavailable for selected dates'}
-                    </span>
-                  )
-                ) : (
-                  <span>Selected dates: {checkIn} to {checkOut}. Pay upon arrival directly at property. Enquiries require host confirmation before reservation is finalized.</span>
-                )}
-              </div>
+              {/* Subtext below panel */}
+              <p className={styles.welcomeSubtext}>
+                Couples, Families &amp; Business Travellers Welcome
+              </p>
             </div>
-          </div>
-        </div>
 
-        {/* Explore Other Rooms Section */}
-        <div className={styles.exploreSection}>
-          <div className={styles.exploreSectionTitle}>
-            <div className={styles.eyebrow}>DISCOVER MORE</div>
-            <h2 className={styles.heading} style={{ textAlign: 'center', fontSize: '32px' }}>EXPLORE OUR SIX ROOMS</h2>
-          </div>
-          
-          <div className={styles.exploreGrid}>
-            {otherRooms.map(otherRoom => (
-              <a key={otherRoom.id} href={`/rooms/${otherRoom.id}`} className={styles.exploreCard}>
-                <div className={styles.exploreImage}>
-                  <ImageSlot 
-                    id={otherRoom.images[0]} 
-                    src={otherRoom.images[0]}
-                    alt={`${otherRoom.name} at The Conclave in Dibrugarh`}
-                    aspectRatio="16/10"
-                    overlay={false}
-                  />
-                </div>
-                <div className={styles.exploreInfo}>
-                  <h4>{otherRoom.name}</h4>
-                  <p>{otherRoom.category} • Khanikar Chariali</p>
-                </div>
-                <div className={styles.exploreAction}>
-                  <div className={styles.price}>₹{otherRoom.price.toLocaleString()} / night</div>
-                  <div className={styles.viewBtn}>DETAILS &rarr;</div>
-                </div>
-              </a>
-            ))}
           </div>
         </div>
 

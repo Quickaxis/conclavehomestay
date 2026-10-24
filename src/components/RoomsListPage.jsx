@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { CheckCircle2, XCircle, AlertCircle, Clock } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, Clock, Users } from 'lucide-react';
 import gsap from 'gsap';
 import { roomsData } from '../data/rooms';
 import SEO from './SEO';
@@ -11,7 +11,6 @@ const RoomsListPage = () => {
   const pageRef = useRef(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const { 
-    openModal, 
     availabilityData, 
     isCheckingAvailability, 
     availabilityError,
@@ -29,16 +28,39 @@ const RoomsListPage = () => {
     );
   }, []);
 
+  // Helper to extract normalized room digits (resolves TC-01, ROOM 01, 01 to "1")
+  const getRoomDigits = (str) => {
+    if (!str) return '';
+    const match = String(str).match(/\d+/);
+    return match ? String(parseInt(match[0], 10)) : '';
+  };
+
+  const isRoomMatch = (vr, lr) => {
+    if (!vr || !lr) return false;
+    if (lr.id === vr.id || lr.legacyId === vr.id) return true;
+    const vrDigits = getRoomDigits(vr.roomNumber);
+    if (vrDigits) {
+      if (getRoomDigits(lr.detail) === vrDigits) return true;
+      if (getRoomDigits(lr.legacyId) === vrDigits) return true;
+      if (getRoomDigits(lr.id) === vrDigits) return true;
+    }
+    if (vr.name && lr.name && vr.name.trim().toLowerCase() === lr.name.trim().toLowerCase()) {
+      return true;
+    }
+    return false;
+  };
+
   // Map availability records by id and roomNumber
   const availabilityMap = {};
   if (availabilityData && Array.isArray(availabilityData.rooms)) {
     availabilityData.rooms.forEach(r => {
       availabilityMap[r.id] = r;
       if (r.roomNumber) {
-        const num = r.roomNumber.trim().replace(/^0+/, '');
-        availabilityMap[`the-vista-room-${num.padStart(2, '0')}`] = r;
-        availabilityMap[`the-comfort-room-${num.padStart(2, '0')}`] = r;
-        availabilityMap[`room-${num.padStart(2, '0')}`] = r;
+        const num = getRoomDigits(r.roomNumber);
+        const pad = num.padStart(2, '0');
+        availabilityMap[`the-vista-room-${pad}`] = r;
+        availabilityMap[`the-comfort-room-${pad}`] = r;
+        availabilityMap[`room-${pad}`] = r;
         availabilityMap[`room-${num}`] = r;
         availabilityMap[r.roomNumber.trim()] = r;
       }
@@ -48,15 +70,19 @@ const RoomsListPage = () => {
   // Display verified physical rooms if available from HMS, otherwise display showcase rooms
   const baseRooms = (verifiedHmsRooms && verifiedHmsRooms.length > 0)
     ? verifiedHmsRooms.map(vr => {
-        const localMatch = roomsData.find(lr => lr.id === vr.id || lr.legacyId === vr.id || lr.detail === vr.roomNumber);
+        const localMatch = roomsData.find(lr => isRoomMatch(vr, lr));
         return {
           id: vr.id,
+          legacyId: localMatch?.legacyId || vr.id,
           name: vr.name,
           category: localMatch?.category || 'Standard Room',
-          detail: vr.roomNumber ? `ROOM ${vr.roomNumber}` : (localMatch?.detail || vr.name),
+          detail: vr.roomNumber ? (vr.roomNumber.toUpperCase().startsWith('ROOM') ? vr.roomNumber.toUpperCase() : `ROOM ${vr.roomNumber}`) : (localMatch?.detail || vr.name),
           description: vr.description || localMatch?.description || 'Boutique accommodation at The Conclave',
           images: localMatch?.images || ['/images/skylinesuite4.webp'],
           amenities: localMatch?.amenities || ['Attached Bathroom', 'Air Conditioning', 'Television'],
+          capacity: (vr.nightlyRate === 2499 || vr.maxGuests >= 5 || localMatch?.id === 'the-grand-suite')
+            ? 'Up to 5 Guests'
+            : (vr.maxGuests ? `Up to ${vr.maxGuests} Guests` : (localMatch?.capacity || 'Up to 2 Guests')),
           price: vr.nightlyRate || localMatch?.price || 1499,
           nightlyRate: vr.nightlyRate
         };
@@ -83,17 +109,18 @@ const RoomsListPage = () => {
       />
       <div className={styles.container}>
         
+        {/* Centered Page Header (Alpine Nest Style) */}
         <div className={styles.header}>
           <span className={styles.eyebrow}>EXACTLY SIX ROOMS</span>
-          <h1 className={styles.heading}>FIND YOUR SPACE.</h1>
+          <h1 className={styles.heading}>A Comfortable Stay in Khanikar Chariali</h1>
           <p className={styles.subheading}>
-            Select your dates below to verify real-time room availability and approved rates directly from our Hotel Management System.
+            Choose from our thoughtfully designed rooms in Dibrugarh, Upper Assam, featuring air conditioning, attached bathrooms, television, and serene surroundings.
           </p>
 
           {/* Availability Search Bar */}
           <AvailabilityBar />
 
-          {/* Category Filter Tabs */}
+          {/* Category Filter Pills */}
           <div className={styles.filterContainer} role="tablist" aria-label="Filter rooms by category">
             {categories.map((cat) => (
               <button
@@ -112,6 +139,7 @@ const RoomsListPage = () => {
           <div className={styles.headingLine}></div>
         </div>
 
+        {/* Alpine Nest 2-Column Room Cards Grid */}
         <div className={styles.roomsGrid}>
           {roomsToDisplay.map((room) => {
             const liveAvail = availabilityMap[room.id] || availabilityMap[room.legacyId];
@@ -121,69 +149,70 @@ const RoomsListPage = () => {
               ? liveAvail.nightlyRate
               : room.price;
 
+            // Ensure ₹2,499 room strictly displays Up to 5 Guests
+            const roomCapacity = (room.id === 'the-grand-suite' || room.price === 2499)
+              ? 'Up to 5 Guests'
+              : (room.capacity || 'Up to 2 Guests');
+
             return (
-              <div key={room.id} className={styles.roomCard}>
+              <article key={room.id} className={styles.roomCard}>
+
+                {/* Room Image with Alpine Nest Style Overlay Badge */}
                 <div className={styles.imageWrapper}>
                   <img 
                     src={room.images[0]} 
                     alt={`${room.name} at The Conclave in Dibrugarh`}
                     className={styles.roomImage}
+                    loading="lazy"
                   />
+                  <div className={styles.imageBadgeWrap}>
+                    <span className={styles.imageCategoryBadge}>
+                      {room.category}
+                    </span>
+                  </div>
                 </div>
+
+                {/* Room Information Area */}
                 <div className={styles.cardContent}>
-                  <div className={styles.badgeRow}>
-                    <span className={styles.categoryBadge}>{room.category || room.name}</span>
+
+                  {/* Meta / Availability Row */}
+                  <div className={styles.metaRow}>
+                    <span className={styles.detailEyebrow}>{room.detail}</span>
                     
-                    {/* Live Availability Badge */}
                     {isAvailChecked && liveAvail ? (
                       isRoomAvailable ? (
                         <span className={`${styles.availBadge} ${styles.availBadgeAvailable}`}>
-                          <CheckCircle2 size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }} />
-                          AVAILABLE FOR {availabilityData.nights} NIGHT{availabilityData.nights > 1 ? 'S' : ''}
+                          <CheckCircle2 size={12} />
+                          AVAILABLE ({availabilityData.nights}N)
                         </span>
                       ) : (
                         <span className={`${styles.availBadge} ${styles.availBadgeUnavailable}`}>
-                          <XCircle size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }} />
-                          {liveAvail.unavailabilityReason || 'UNAVAILABLE FOR SELECTED DATES'}
+                          <XCircle size={12} />
+                          {liveAvail.unavailabilityReason || 'UNAVAILABLE FOR DATES'}
                         </span>
                       )
                     ) : availabilityError ? (
                       <span className={`${styles.availBadge} ${styles.availBadgePending}`}>
-                        <AlertCircle size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }} />
-                        AVAILABILITY ON ENQUIRY
+                        <AlertCircle size={12} />
+                        ON ENQUIRY
                       </span>
                     ) : (
                       <span className={`${styles.availBadge} ${styles.availBadgePending}`}>
-                        <Clock size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }} />
-                        HOST CONFIRMATION REQUIRED
+                        <Clock size={12} />
+                        CONFIRMED RATE
                       </span>
                     )}
                   </div>
 
-                  <h3 className={styles.roomName}>{room.name}</h3>
+                  {/* Room Name */}
+                  <h2 className={styles.roomName}>{room.name}</h2>
+
+                  {/* Truthful Room Description */}
                   <p className={styles.roomDesc}>
                     {liveAvail?.description || room.description}
                   </p>
                   
-                  {/* Pricing Container */}
-                  <div className={styles.priceContainer}>
-                    <div>
-                      <div className={styles.price}>
-                        ₹{roomRate.toLocaleString()}
-                      </div>
-                      <div className={styles.nightText}>
-                        PER ROOM PER NIGHT
-                      </div>
-                      {availabilityData && availabilityData.nights && (
-                        <div className={styles.totalPriceText}>
-                          Total for {availabilityData.nights} night{availabilityData.nights > 1 ? 's' : ''} ({guests} guest{guests > 1 ? 's' : ''}): ₹{(roomRate * availabilityData.nights).toLocaleString()} (Pay at Property)
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className={styles.divider}></div>
-
+                  {/* Compact Amenities List */}
                   <div className={styles.amenitiesList}>
                     {room.amenities.map((amenity, idx) => (
                       <div key={idx} className={styles.amenityItem}>
@@ -191,47 +220,41 @@ const RoomsListPage = () => {
                       </div>
                     ))}
                   </div>
-                  
-                  <div className={styles.actions}>
-                    <a href={`/rooms/${room.id}`} className={styles.viewBtn}>
-                      VIEW DETAILS
-                    </a>
 
-                    {isAvailChecked && liveAvail && !isRoomAvailable ? (
-                      <button 
-                        disabled 
-                        className={`${styles.bookBtn} ${styles.disabledBtn}`}
-                        title="Room is already reserved or capacity exceeded for selected dates"
-                      >
-                        UNAVAILABLE
-                      </button>
-                    ) : isAvailChecked && liveAvail && isRoomAvailable ? (
-                      <button 
-                        onClick={() => openModal({ roomId: liveAvail.id, mode: 'book' })} 
-                        className={styles.bookBtn}
-                      >
-                        RESERVE (PAY AT PROPERTY)
-                      </button>
-                    ) : (
-                      <button 
-                        onClick={() => openModal({ roomId: room.id, mode: 'enquiry' })} 
-                        className={styles.bookBtn}
-                      >
-                        ENQUIRE ABOUT STAY
-                      </button>
-                    )}
+                  {/* Capacity & Price Row (Exact Alpine Nest Typography) */}
+                  <div className={styles.capacityPriceRow}>
+                    <div className={styles.capacityBox}>
+                      <Users size={16} className={styles.capacityIcon} />
+                      <span>{roomCapacity}</span>
+                    </div>
 
-                    <button
-                      onClick={() => openModal({ roomId: room.id, mode: 'enquiry' })}
-                      className={styles.viewBtn}
-                      style={{ fontSize: '11px', padding: '10px 16px' }}
-                      title="General questions without blocking inventory"
-                    >
-                      ENQUIRE
-                    </button>
+                    <div className={styles.priceBox}>
+                      <span className={styles.priceAmount}>₹{roomRate.toLocaleString()}/-</span>
+                      <span className={styles.pricePeriod}>NIGHT</span>
+                    </div>
                   </div>
+
+                  {/* Multi-night estimate if dates selected */}
+                  {availabilityData && availabilityData.nights && (
+                    <div className={styles.multiNightBox}>
+                      Total for {availabilityData.nights} night{availabilityData.nights > 1 ? 's' : ''} ({guests} guest{guests > 1 ? 's' : ''}): <strong>₹{(roomRate * availabilityData.nights).toLocaleString()}</strong> (Pay at Property)
+                    </div>
+                  )}
+
+                  {/* Dashed Divider Line */}
+                  <div className={styles.cardDivider}></div>
+
+                  {/* Alpine Nest Single Action: Clean full-width text link at bottom */}
+                  <a
+                    href={`/rooms/${room.id}`}
+                    className={styles.viewDetailsRow}
+                  >
+                    <span>VIEW DETAILS</span>
+                    <span className={styles.arrowIcon}>&rarr;</span>
+                  </a>
+
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>

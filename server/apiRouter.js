@@ -10,8 +10,16 @@ import {
  * Connect/Express compatible API middleware for HMS endpoints.
  */
 export async function handleHmsApiRequest(req, res, next) {
-  const reqUrl = new URL(req.url, 'http://localhost');
-  const pathname = reqUrl.pathname;
+  // Resolve requested URL across Vercel serverless, Vite dev, and Node server
+  const rawUrl = req.headers?.['x-forwarded-uri'] || req.headers?.['x-matched-path'] || req.url || '';
+  const reqUrl = new URL(rawUrl, 'http://localhost');
+  let pathname = reqUrl.pathname;
+
+  // If invoked via Vercel dynamic catch-all route (api/hms/[...slug].js)
+  if (req.query && req.query.slug && (!pathname || pathname === '/api/hms' || pathname === '/api/hms/' || !pathname.startsWith('/api/hms'))) {
+    const slugPath = Array.isArray(req.query.slug) ? req.query.slug.join('/') : req.query.slug;
+    pathname = `/api/hms/${slugPath}`;
+  }
 
   // Only handle /api/hms/* requests
   if (!pathname || !pathname.startsWith('/api/hms')) {
@@ -19,14 +27,14 @@ export async function handleHmsApiRequest(req, res, next) {
     return false;
   }
 
-  // Set standard JSON headers
+  // Set standard JSON & CORS headers for broad compatibility
   res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   // Handle CORS preflight if needed
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.statusCode = 204;
     res.end();
     return true;
@@ -52,15 +60,27 @@ export async function handleHmsApiRequest(req, res, next) {
 
     // 3. GET /api/hms/availability
     if (pathname === '/api/hms/availability' && req.method === 'GET') {
-      const checkIn = reqUrl.searchParams.get('checkIn');
-      const checkOut = reqUrl.searchParams.get('checkOut');
-      const guests = reqUrl.searchParams.get('guests');
+      const checkIn = reqUrl.searchParams.get('checkIn') || req.query?.checkIn;
+      const checkOut = reqUrl.searchParams.get('checkOut') || req.query?.checkOut;
+      const guests = reqUrl.searchParams.get('guests') || req.query?.guests;
       const result = await getRoomAvailability({ checkIn, checkOut, guests });
       return sendJson(result.success ? 200 : 400, result);
     }
 
     // Parse JSON body for POST requests with size guard (max 64KB)
+    // Supports both pre-parsed req.body (Vercel serverless) and streams (Node/Vite)
     const parseBody = () => new Promise((resolve, reject) => {
+      if (req.body && typeof req.body === 'object') {
+        return resolve(req.body);
+      }
+      if (typeof req.body === 'string' && req.body.trim()) {
+        try {
+          return resolve(JSON.parse(req.body));
+        } catch {
+          return resolve({});
+        }
+      }
+
       let body = '';
       let size = 0;
       const MAX_SIZE = 64 * 1024;

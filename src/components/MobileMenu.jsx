@@ -2,13 +2,13 @@ import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import gsap from 'gsap';
 import styles from './MobileMenu.module.css';
-import { useBookingModal } from '../context/BookingContext';
+import { useBooking } from '../context/BookingContext';
 
 const MobileMenu = ({ isOpen, onClose }) => {
   const menuRef = useRef(null);
   const overlayRef = useRef(null);
   const linksRef = useRef([]);
-  const { openModal } = useBookingModal();
+  const { openBookNowMenu } = useBooking();
 
   useEffect(() => {
     if (isOpen) {
@@ -106,8 +106,8 @@ const MobileMenu = ({ isOpen, onClose }) => {
         <div className={styles.footer}>
           <button 
             onClick={() => {
-              openModal();
               onClose();
+              openBookNowMenu();
             }} 
             className={`pill-button pill-button-navy ${styles.bookBtn}`} 
             style={{ display: 'flex', width: '100%', justifyContent: 'center' }}

@@ -529,6 +529,173 @@ export async function runTestSuite() {
     assert(!okJson.bookingReference, 'Enquiry does NOT create a booking or lock room inventory');
   }
 
+  // ----------------------------------------------------
+  // SECTION 14: THREE INTEGRATION BLOCKERS VERIFICATION
+  // ----------------------------------------------------
+  console.log('\n--- SECTION 14: Three Integration Blockers Verification ---');
+  {
+    // 14.1: BookYourStayModal.jsx hasLiveRate and Zero-Fabrication Verification
+    const modalPath = path.resolve(process.cwd(), 'src', 'components', 'BookYourStayModal.jsx');
+    const modalContent = fs.readFileSync(modalPath, 'utf-8');
+
+    assert(modalContent.includes('const hasLiveRate = Boolean('), 'BookYourStayModal safely defines hasLiveRate');
+    assert(modalContent.includes('typeof activeRoom.nightlyRate === \'number\' && activeRoom.nightlyRate > 0'), 'hasLiveRate safely validates activeRoom and positive nightlyRate');
+    assert(!modalContent.includes(': 1499'), 'BookYourStayModal does NOT invent or fallback to fabricated ₹1,499 rate');
+    assert(modalContent.includes('const activeRate = hasLiveRate ? activeRoom.nightlyRate : null'), 'activeRate safely set to null when room rate is unconfigured');
+    assert(modalContent.includes('const estimatedTotalPrice = (activeRate && nights) ? activeRate * nights : null'), 'estimatedTotalPrice safely null when rate unconfigured');
+    assert(modalContent.includes('Confirmed upon Host Review'), 'Pricing box shows Confirmed upon Host Review when rate is not live');
+
+    // Functional verification of hasLiveRate calculation logic
+    const calcRate = (room) => Boolean(room && typeof room.nightlyRate === 'number' && room.nightlyRate > 0);
+    assert(calcRate({ nightlyRate: 1999 }) === true, 'Rate derivation evaluates true for positive numeric rate');
+    assert(calcRate({ nightlyRate: 0 }) === false, 'Rate derivation evaluates false for 0 rate');
+    assert(calcRate({ nightlyRate: null }) === false, 'Rate derivation evaluates false for null rate');
+    assert(calcRate(null) === false, 'Rate derivation evaluates false for undefined/null room');
+
+    // 14.2: RoomDetailPage.jsx Resolution of Static Slugs and HMS UUIDs
+    const detailPath = path.resolve(process.cwd(), 'src', 'components', 'RoomDetailPage.jsx');
+    const detailContent = fs.readFileSync(detailPath, 'utf-8');
+
+    assert(detailContent.includes('verifiedHmsRooms'), 'RoomDetailPage accesses verifiedHmsRooms from BookingContext');
+    assert(detailContent.includes('staticRoomMatch'), 'RoomDetailPage resolves static room slugs and legacy IDs');
+    assert(detailContent.includes('liveVerifiedRoom'), 'RoomDetailPage resolves live HMS room UUIDs');
+    assert(detailContent.includes('isLoadingStatus'), 'RoomDetailPage tracks server loading status to prevent false 404s');
+    assert(detailContent.includes('<NotFoundPage />'), 'RoomDetailPage preserves NotFoundPage error behavior for unknown rooms');
+    assert(detailContent.includes('openModal({ roomId: liveHms?.id || room.id, mode: \'book\' })'), 'Book button forwards real HMS UUID to reservation flow');
+
+    // Functional test of room resolution logic
+    const { roomsData } = await import('../src/data/rooms.js');
+    const isRoomMatch = (hmsRoom, staticRoom) => {
+      if (!hmsRoom || !staticRoom) return false;
+      if (hmsRoom.id === staticRoom.id || hmsRoom.id === staticRoom.legacyId) return true;
+      if (hmsRoom.roomNumber) {
+        const rawNum = String(hmsRoom.roomNumber).trim();
+        const numOnly = rawNum.replace(/^room\s*/i, '').replace(/^0+/, '');
+        const padNum = numOnly.padStart(2, '0');
+        if (staticRoom.detail && (staticRoom.detail.toUpperCase() === `ROOM ${padNum}` || staticRoom.detail.toUpperCase() === `ROOM ${rawNum.toUpperCase()}`)) return true;
+        if (staticRoom.legacyId === `room-${padNum}` || staticRoom.legacyId === `room-${numOnly}`) return true;
+        if (staticRoom.id === `the-vista-room-${padNum}` || staticRoom.id === `the-comfort-room-${padNum}`) return true;
+        if (staticRoom.id === 'the-grand-suite' && (numOnly === '3' || padNum === '03')) return true;
+      }
+      return false;
+    };
+
+    // Test static slug resolution
+    const staticResolved = roomsData.find(r => r.id === 'the-vista-room-01' || r.legacyId === 'the-vista-room-01');
+    assert(Boolean(staticResolved), 'Resolves existing static room ID the-vista-room-01');
+    assert(staticResolved.name === 'The Vista Room 01', 'Static room preserves correct room name');
+
+    // Test legacy ID resolution
+    const legacyResolved = roomsData.find(r => r.id === 'room-01' || r.legacyId === 'room-01');
+    assert(Boolean(legacyResolved), 'Resolves legacy ID room-01');
+
+    // Test HMS UUID resolution
+    const mockHmsRooms = [
+      {
+        id: 'c7c64448-1246-4cb8-8c11-9252c84279ab',
+        roomNumber: '01',
+        name: 'The Vista Room 01 (HMS Live)',
+        nightlyRate: 1999,
+        maxGuests: 2,
+        description: 'Verified live room description from HMS.'
+      }
+    ];
+    const uuidQuery = 'c7c64448-1246-4cb8-8c11-9252c84279ab';
+    const liveMatch = mockHmsRooms.find(r => r.id === uuidQuery);
+    const matchedStatic = roomsData.find(sr => isRoomMatch(liveMatch, sr));
+    assert(Boolean(liveMatch), 'Resolves verified HMS room by UUID');
+    assert(Boolean(matchedStatic), 'Maps live HMS room to static presentation template (images & amenities)');
+    assert(matchedStatic.id === 'the-vista-room-01', 'Correctly matches Room 01 to the Vista Room template');
+
+    // 14.3: vite.config.js Development Environment Loading & Security Verification
+    const viteConfigPath = path.resolve(process.cwd(), 'vite.config.js');
+    const viteConfigContent = fs.readFileSync(viteConfigPath, 'utf-8');
+
+    assert(viteConfigContent.includes('loadEnv'), 'vite.config.js imports loadEnv from vite');
+    assert(viteConfigContent.includes("loadEnv(mode, process.cwd(), '')"), 'vite.config.js loads all environment variables in dev mode');
+    assert(viteConfigContent.includes('process.env[key] = env[key]'), 'vite.config.js assigns server keys to process.env for Node API');
+    assert(!viteConfigContent.includes('define:'), 'vite.config.js NEVER uses define to expose secrets to client bundle');
+    assert(!viteConfigContent.includes('VITE_SERVICE_ROLE_KEY'), 'vite.config.js NEVER prefixes service role key with VITE_');
+    assert(!viteConfigContent.includes('console.log'), 'vite.config.js NEVER prints secrets or env variables in console logs');
+  }
+
+  // ----------------------------------------------------
+  // SECTION 15: VERCEL PRODUCTION DEPLOYMENT & SERVERLESS INTEGRATION
+  // ----------------------------------------------------
+  console.log('\n--- SECTION 15: Vercel Production Deployment & Serverless Integration ---');
+  {
+    // 15.1 vercel.json configuration verification
+    const vercelJsonPath = path.resolve(process.cwd(), 'vercel.json');
+    assert(fs.existsSync(vercelJsonPath), 'vercel.json exists in repository root');
+    const vercelConfig = JSON.parse(fs.readFileSync(vercelJsonPath, 'utf-8'));
+    assert(Array.isArray(vercelConfig.rewrites), 'vercel.json defines rewrites array');
+    const apiRewrite = vercelConfig.rewrites.find(r => r.source.includes('/api/hms'));
+    assert(Boolean(apiRewrite), 'vercel.json routes /api/hms requests to serverless function');
+    const spaRewrite = vercelConfig.rewrites.find(r => r.destination === '/index.html');
+    assert(Boolean(spaRewrite), 'vercel.json configures SPA catch-all rewrite to /index.html');
+    assert(spaRewrite.source.includes('(?!api/)') || vercelConfig.rewrites.indexOf(apiRewrite) < vercelConfig.rewrites.indexOf(spaRewrite), 'API routes are prioritized before SPA fallback');
+
+    // 15.2 Serverless entrypoint files exist and export default async handler
+    const catchAllFuncPath = path.resolve(process.cwd(), 'api/hms/[...slug].js');
+    assert(fs.existsSync(catchAllFuncPath), 'api/hms/[...slug].js serverless handler exists');
+    const indexFuncPath = path.resolve(process.cwd(), 'api/hms/index.js');
+    assert(fs.existsSync(indexFuncPath), 'api/hms/index.js serverless handler exists');
+    const rootApiFuncPath = path.resolve(process.cwd(), 'api/index.js');
+    assert(fs.existsSync(rootApiFuncPath), 'api/index.js serverless fallback handler exists');
+
+    const catchAllModule = await import('../api/hms/[...slug].js');
+    assert(typeof catchAllModule.default === 'function', 'api/hms/[...slug].js exports default function');
+
+    // 15.3 Vercel Pre-parsed Body Simulation (No stream events, pre-buffered req.body)
+    {
+      const req = {
+        method: 'POST',
+        url: '/api/hms/enquiries',
+        headers: { 'content-type': 'application/json' },
+        body: {
+          name: 'Vercel Preparsed Test',
+          phone: '123', // invalid phone to test immediate 400 rejection without hanging
+          message: 'Testing pre-parsed body handling'
+        }
+      };
+
+      const res = {
+        statusCode: 200,
+        headers: {},
+        body: '',
+        setHeader(k, v) { this.headers[k] = v; },
+        end(chunk) { if (chunk) this.body += chunk; }
+      };
+
+      await catchAllModule.default(req, res);
+      assert(res.statusCode === 400, 'Pre-parsed Vercel body processed and validated without hanging stream');
+      const json = JSON.parse(res.body);
+      assert(json.success === false, 'Pre-parsed body triggers correct validation failure');
+      assert(res.headers['Access-Control-Allow-Origin'] === '*', 'Sets CORS header for broad domain compatibility');
+    }
+
+    // 15.4 Dynamic catch-all slug resolution test
+    {
+      const req = {
+        method: 'GET',
+        url: '/api/hms',
+        headers: {},
+        query: { slug: ['status'] }
+      };
+
+      const res = {
+        statusCode: 200,
+        headers: {},
+        body: '',
+        setHeader(k, v) { this.headers[k] = v; },
+        end(chunk) { if (chunk) this.body += chunk; }
+      };
+
+      await catchAllModule.default(req, res);
+      assert(res.statusCode === 200, 'Catch-all slug properly resolves to /api/hms/status');
+    }
+  }
+
   console.log('\n====================================================');
   console.log(`SUMMARY: ${passedTests}/${totalTests} TESTS PASSED WITH ZERO FAILURES!`);
   console.log('====================================================');

@@ -3,12 +3,12 @@ import { Menu } from 'lucide-react';
 import gsap from 'gsap';
 import styles from './Navbar.module.css';
 import MobileMenu from './MobileMenu';
-import { useBookingModal } from '../context/BookingContext';
+import { useBooking } from '../context/BookingContext';
 
 const Navbar = ({ currentPath = '/' }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { openModal } = useBookingModal();
+  const { openBookNowMenu } = useBooking();
   const navRef = useRef(null);
 
   useEffect(() => {
@@ -64,13 +64,15 @@ const Navbar = ({ currentPath = '/' }) => {
           </div>
 
           <div className={styles.actions}>
-            <button 
-              onClick={openModal} 
-              className={`pill-button ${styles.bookBtn}`} 
-              style={{ display: 'inline-flex', cursor: 'pointer' }}
-            >
-              BOOK NOW
-            </button>
+            {!(currentPath === '/rooms' || currentPath === '/rooms/' || currentPath.startsWith('/rooms/')) && (
+              <button
+                onClick={openBookNowMenu}
+                className={`pill-button ${styles.bookBtn}`}
+                style={{ display: 'inline-flex', cursor: 'pointer' }}
+              >
+                BOOK NOW
+              </button>
+            )}
             <button 
               className={styles.mobileMenuBtn}
               onClick={() => setMobileMenuOpen(true)}

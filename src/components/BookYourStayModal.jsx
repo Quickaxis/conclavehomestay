@@ -56,8 +56,23 @@ const BookYourStayModal = () => {
   useEffect(() => {
     if (isModalOpen) {
       if (modalConfig?.roomId) {
-        setSelectedRoomId(modalConfig.roomId);
-      } else if (!selectedRoomId) {
+        // Resolve static slug to actual HMS room UUID if verified HMS rooms are active
+        const matchedHmsRoom = hasVerifiedRooms ? verifiedHmsRooms.find(r => {
+          if (r.id === modalConfig.roomId || r.legacyId === modalConfig.roomId) return true;
+          if (r.roomNumber) {
+            const cleanNum = String(r.roomNumber).trim().replace(/^room\s*/i, '').replace(/^0+/, '');
+            const padNum = cleanNum.padStart(2, '0');
+            return modalConfig.roomId === `room-${padNum}` ||
+                   modalConfig.roomId === `room-${cleanNum}` ||
+                   modalConfig.roomId === `the-vista-room-${padNum}` ||
+                   modalConfig.roomId === `the-comfort-room-${padNum}` ||
+                   (modalConfig.roomId === 'the-grand-suite' && (cleanNum === '3' || padNum === '03'));
+          }
+          return false;
+        }) : null;
+
+        setSelectedRoomId(matchedHmsRoom ? matchedHmsRoom.id : modalConfig.roomId);
+      } else {
         const defaultRoom = (hasVerifiedRooms ? verifiedHmsRooms[0].id : roomsData[0]?.id) || '';
         setSelectedRoomId(defaultRoom);
       }
@@ -65,7 +80,7 @@ const BookYourStayModal = () => {
       setRequestSuccessData(null);
       setEnquirySuccessData(null);
     }
-  }, [isModalOpen, modalConfig, hasVerifiedRooms, verifiedHmsRooms, selectedRoomId]);
+  }, [isModalOpen, modalConfig, hasVerifiedRooms, verifiedHmsRooms]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -104,7 +119,19 @@ const BookYourStayModal = () => {
         description: r.description
       }));
 
-  const activeRoom = availableRoomsList.find(r => r.id === selectedRoomId || r.legacyId === selectedRoomId) || availableRoomsList[0];
+  const activeRoom = availableRoomsList.find(r => {
+    if (r.id === selectedRoomId || r.legacyId === selectedRoomId) return true;
+    if (r.roomNumber) {
+      const cleanNum = String(r.roomNumber).trim().replace(/^room\s*/i, '').replace(/^0+/, '');
+      const padNum = cleanNum.padStart(2, '0');
+      return selectedRoomId === `room-${padNum}` ||
+             selectedRoomId === `room-${cleanNum}` ||
+             selectedRoomId === `the-vista-room-${padNum}` ||
+             selectedRoomId === `the-comfort-room-${padNum}` ||
+             (selectedRoomId === 'the-grand-suite' && (cleanNum === '3' || padNum === '03'));
+    }
+    return false;
+  }) || availableRoomsList[0];
 
   // Calculate nights
   const checkInDate = new Date(checkIn);
@@ -113,11 +140,12 @@ const BookYourStayModal = () => {
     ? Math.max(1, Math.round((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)))
     : 1;
 
+  // Derive rate availability safely from the verified selected room and its valid nightly rate
+  const hasLiveRate = Boolean(activeRoom && typeof activeRoom.nightlyRate === 'number' && activeRoom.nightlyRate > 0);
+
   // Multi-night estimate calculated from the selected room's configured nightly rate
-  const activeRate = (activeRoom && typeof activeRoom.nightlyRate === 'number' && activeRoom.nightlyRate > 0)
-    ? activeRoom.nightlyRate
-    : 1499;
-  const estimatedTotalPrice = activeRate * nights;
+  const activeRate = hasLiveRate ? activeRoom.nightlyRate : null;
+  const estimatedTotalPrice = (activeRate && nights) ? activeRate * nights : null;
 
   // Form submission handler: submits booking request directly to HMS
   const handleBookingSubmit = async (e) => {
@@ -189,7 +217,7 @@ const BookYourStayModal = () => {
       phone: guestPhone.trim(),
       email: guestEmail.trim() || null,
       dates: `${checkIn} to ${checkOut}`,
-      roomPreference: activeRoom ? `${activeRoom.name} (₹${activeRate.toLocaleString()}/night)` : 'Any Room',
+      roomPreference: activeRoom ? `${activeRoom.name}${hasLiveRate ? ` (₹${activeRate.toLocaleString()}/night)` : ''}` : 'Any Room',
       numberOfGuests: parseInt(guests, 10) || 1,
       message: specialRequests.trim() || null
     };
@@ -454,10 +482,10 @@ const BookYourStayModal = () => {
               <div className={styles.pricingSummaryBox}>
                 <div className={styles.pricingRow}>
                   <span className={styles.pricingLabel}>
-                    {activeRoom?.name} (₹{activeRate.toLocaleString()} × {nights} night{nights > 1 ? 's' : ''})
+                    {activeRoom?.name} {hasLiveRate ? `(₹${activeRate.toLocaleString()} × ${nights} night${nights > 1 ? 's' : ''})` : ''}
                   </span>
                   <span className={styles.pricingValue}>
-                    ₹{estimatedTotalPrice.toLocaleString()}
+                    {estimatedTotalPrice ? `₹${estimatedTotalPrice.toLocaleString()}` : 'Confirmed upon Host Review'}
                   </span>
                 </div>
                 <div className={styles.pricingNotice}>

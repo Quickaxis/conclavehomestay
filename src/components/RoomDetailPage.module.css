@@ -7,66 +7,58 @@
   padding-bottom: 90px;
 }
 
-.pageWrapper::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(197, 161, 90, 0.25) 1.5px, transparent 1.5px);
-  background-size: 28px 28px;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.bgCurve {
-  position: absolute;
-  top: 10%;
-  left: 0;
-  width: 120vw;
-  height: auto;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.12;
-  color: var(--color-gold);
-}
-
 .container {
   position: relative;
   z-index: 1;
-  max-width: 1300px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 24px;
 }
 
+/* Breadcrumb Navigation: Home → Rooms → Room Name */
 .breadcrumb {
   font-family: var(--font-primary);
-  font-size: 12.5px;
-  color: var(--color-muted-text);
-  margin-bottom: 32px;
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-bottom: 28px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .breadcrumb a {
-  color: var(--color-muted-text);
+  color: var(--color-muted);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color 0.2s ease;
 }
 
 .breadcrumb a:hover {
   color: var(--color-burgundy);
 }
 
+.crumbArrow {
+  color: var(--color-gold);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.activeCrumb {
+  color: var(--color-burgundy);
+  font-weight: 600;
+}
+
+/* 2-Column Detail Grid (Alpine Nest Style) */
 .grid {
   display: grid;
-  grid-template-columns: 54% 1fr;
-  gap: 56px;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 48px;
   align-items: start;
 }
 
-.grid > * {
+.galleryCol {
   min-width: 0;
+  width: 100%;
 }
 
 .contentCol {
@@ -74,71 +66,60 @@
   flex-direction: column;
 }
 
-.eyebrow {
+.headerMeta {
+  margin-bottom: 8px;
+}
+
+.categoryBadge {
   font-family: var(--font-primary);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-burgundy);
-  border: 1px solid var(--color-gold);
-  background: var(--color-gold-light);
-  border-radius: 999px;
-  padding: 5px 14px;
-  display: inline-block;
-  margin-bottom: 12px;
-  width: fit-content;
+  color: var(--color-gold);
 }
 
 .heading {
   font-family: var(--font-heading);
-  font-size: clamp(34px, 4vw, 50px);
-  font-weight: 700;
+  font-size: clamp(32px, 3.4vw, 42px);
+  font-weight: 800;
   color: var(--color-burgundy);
+  line-height: 1.2;
   margin: 0 0 16px 0;
-  line-height: 1.15;
-  word-break: break-word;
+  letter-spacing: -0.01em;
 }
 
 .description {
   font-family: var(--font-primary);
-  font-size: 15.5px;
+  font-size: 15px;
   line-height: 1.65;
-  color: var(--color-charcoal);
-  margin-bottom: 32px;
+  color: var(--color-dark-text);
+  margin-bottom: 20px;
 }
 
-/* Room Specification Grid */
-.specsBox {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px 20px;
-  background: #FFFFFF;
-  border: 1px solid var(--color-gold-border);
-  border-radius: 12px;
-  padding: 16px 20px;
-  margin-bottom: 36px;
-  box-shadow: 0 4px 14px rgba(40, 35, 35, 0.04);
-}
-
-.specItem {
-  font-family: var(--font-primary);
-  font-size: 13px;
-  display: flex;
+.capacityMeta {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(197, 161, 90, 0.15);
-  padding-bottom: 8px;
+  gap: 8px;
+  font-family: var(--font-primary);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-dark-text);
+  background: #FFFFFF;
+  padding: 6px 16px;
+  border-radius: 999px;
+  width: fit-content;
+  border: 1px solid rgba(197, 161, 90, 0.3);
+  margin-bottom: 28px;
 }
 
-.specLabel {
-  color: var(--color-muted-text);
-  font-weight: 500;
-}
-
-.specValue {
+.capacityIcon {
   color: var(--color-burgundy);
-  font-weight: 700;
+}
+
+/* Room Amenities (Alpine Nest 2-Column Icon Grid) */
+.amenitiesSection {
+  margin-bottom: 32px;
 }
 
 .sectionTitle {
@@ -146,28 +127,23 @@
   font-size: 20px;
   font-weight: 700;
   color: var(--color-burgundy);
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .amenitiesGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 20px;
 }
 
 .amenityItem {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   font-family: var(--font-primary);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: var(--color-charcoal);
-  background: #FFFFFF;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(197, 161, 90, 0.2);
+  color: var(--color-dark-text);
 }
 
 .amenityIcon {
@@ -177,196 +153,125 @@
   flex-shrink: 0;
 }
 
-.bookingPanel {
-  background: var(--color-white);
-  border: 1px solid var(--color-gold-border);
-  border-radius: 16px;
-  padding: 28px;
+/* Price Panel with BOOK YOUR STAY → Button */
+.bookingPanelContainer {
+  margin-top: 10px;
+}
+
+.pricePanel {
+  background: #FFFFFF;
+  border: 1px solid rgba(197, 161, 90, 0.32);
+  border-radius: 18px;
+  padding: 22px 28px;
   box-shadow: 0 10px 30px rgba(100, 27, 48, 0.08);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  width: 100%;
-  box-sizing: border-box;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.priceInfo {
+  display: flex;
+  flex-direction: column;
 }
 
 .priceLabel {
   font-family: var(--font-primary);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-muted-text);
+  color: var(--color-muted);
   margin-bottom: 4px;
 }
 
 .priceValue {
   font-family: var(--font-primary);
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
   color: var(--color-burgundy);
+  line-height: 1;
 }
 
-.bookBtn {
+.bookYourStayBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   background: var(--color-burgundy);
   color: #FFFFFF;
-  border: 1px solid var(--color-gold);
-  border-radius: 999px;
-  padding: 14px 28px;
   font-family: var(--font-primary);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 14px 30px;
+  border-radius: 999px;
+  border: 1px solid var(--color-burgundy);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   box-shadow: 0 4px 14px rgba(100, 27, 48, 0.25);
+  flex-shrink: 0;
 }
 
-.bookBtn:hover {
+.bookYourStayBtn:hover {
   background: var(--color-burgundy-hover);
-  border-color: #dfb868;
+  border-color: var(--color-burgundy-hover);
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(100, 27, 48, 0.4);
+  box-shadow: 0 6px 20px rgba(100, 27, 48, 0.35);
 }
 
-.subNote {
+.btnArrow {
+  font-size: 16px;
+  line-height: 1;
+  color: var(--color-gold);
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.bookYourStayBtn:hover .btnArrow {
+  transform: translateX(4px);
+  color: #FFFFFF;
+}
+
+.welcomeSubtext {
   font-family: var(--font-primary);
-  font-size: 12.5px;
-  color: var(--color-muted-text);
-  text-align: right;
-  padding-right: 8px;
-}
-
-/* Explore Section */
-.exploreSection {
-  margin-top: 100px;
-  padding-top: 56px;
-  border-top: 1.5px dashed rgba(197, 161, 90, 0.35);
-}
-
-.exploreSectionTitle {
+  font-size: 12px;
+  color: var(--color-muted);
   text-align: center;
-  margin-bottom: 44px;
+  margin-top: 12px;
+  line-height: 1.4;
 }
 
-.exploreGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
+/* Responsive */
+@media (max-width: 960px) {
+  .pageWrapper {
+    padding-top: 110px;
+    padding-bottom: 70px;
+  }
 
-.exploreCard {
-  background: var(--color-white);
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(40, 35, 35, 0.05);
-  text-decoration: none;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  border: 1px solid var(--color-gold-border);
-}
-
-.exploreCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(100, 27, 48, 0.12);
-  border-color: var(--color-gold);
-}
-
-.exploreImage {
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-  background: var(--color-cream);
-}
-
-.exploreInfo {
-  padding: 16px 20px 8px;
-  flex-grow: 1;
-}
-
-.exploreInfo h4 {
-  font-family: var(--font-heading);
-  font-size: 20px;
-  color: var(--color-burgundy);
-  margin-bottom: 4px;
-  font-weight: 700;
-}
-
-.exploreInfo p {
-  font-family: var(--font-primary);
-  font-size: 13px;
-  color: var(--color-muted-text);
-  font-weight: 500;
-}
-
-.exploreAction {
-  padding: 8px 20px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.exploreAction .price {
-  font-family: var(--font-primary);
-  font-weight: 700;
-  color: var(--color-burgundy);
-  font-size: 18px;
-}
-
-.viewBtn {
-  font-family: var(--font-primary);
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--color-burgundy);
-  text-decoration: underline;
-  text-decoration-color: var(--color-gold);
-}
-
-@media (max-width: 992px) {
   .grid {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 36px;
   }
-  .exploreGrid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+
+  .heading {
+    font-size: 30px;
+  }
+
+  .pricePanel {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .bookYourStayBtn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
-@media (max-width: 768px) {
-  .pageWrapper {
-    padding-top: 100px;
-  }
-  
-  .specsBox {
+@media (max-width: 600px) {
+  .amenitiesGrid {
     grid-template-columns: 1fr;
-  }
-
-  .bookingPanel {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 20px;
-    padding: 20px;
-  }
-  
-  .bookBtn {
-    justify-content: center;
-    width: 100%;
-  }
-  
-  .subNote {
-    text-align: center;
-    padding-right: 0;
-  }
-  
-  .exploreGrid {
-    grid-template-columns: 1fr;
-    gap: 16px;
   }
 }
